@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <title>Drawio</title>
+        <link rel="stylesheet" href="styles.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
+    </head>
+    <body>
+        <aside>
+            <nav>
+                <div class="icon disabled" data-shape="undo">
+                    <i class="fa fa-undo" aria-hidden="true"></i>
+                </div>
+                <div class="icon disabled" data-shape="redo">
+                    <i class="fa fa-repeat" aria-hidden="true"></i>
+                </div>
+                <div class="icon" data-shape="save">
+                    <i class="fa fa-save" aria-hidden="true"></i>
+                </div>
+                <div class="icon" data-shape="load-image">
+                    <i class="fa fa-folder-open-o" aria-hidden="true"></i>
+                </div>
+                <div class="icon selected" data-shape="rectangle-filled">
+                    <i class="fa fa-square" aria-hidden="true"></i>
+                </div>
+                <div class="icon" data-shape="circle-filled">
+                    <i class="fa fa-circle" aria-hidden="true"></i>
+                </div>
+                <div class="icon" data-shape="line">
+                    <i aria-hidden="true">/</i>
+                </div>
+                <div class="icon" data-shape="pen">
+                    <i class="fa fa-pencil" aria-hidden="true"></i>
+                </div>
+                <div class="icon" data-shape="rectangle-outline">
+                    <i class="fa fa-square-o" aria-hidden="true"></i>
+                </div>
+                <div class="icon" data-shape="circle-outline">
+                    <i class="fa fa-circle-thin" aria-hidden="true"></i>
+                </div>
+                <div class="icon" data-shape="text">
+                    <i class="fa fa-font" aria-hidden="true"></i>
+                </div>
+            </nav>
+        </aside>
+        <canvas id="my-canvas" width="800" height="600">
+            HTML5 &lt;canvas&gt;&lt;/canvas&gt; is not supported
+        </canvas>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js" charset="utf-8"></script>
+        <script src="drawio.js" charset="utf-8"></script>
+        <script src="shapes.js" charset="utf-8"></script>
+    </body>
+</html>

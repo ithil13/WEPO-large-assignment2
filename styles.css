@@ -1,0 +1,44 @@
+
+body {
+    background-color: rgba(248, 245, 233, 0.7);
+    margin: 0;
+    display: flex;
+}
+
+aside {
+    flex-direction: row;
+    width: 200px;
+    padding: 10px;
+    background-color: darkslategrey;
+}
+
+nav {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+}
+
+.icon {
+    padding: 5px;
+    width: 40px;
+    font-size: 2.5em;
+    text-align: center;
+    color: whitesmoke;
+}
+
+.selected {
+    color: goldenrod;
+}
+
+.disabled {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+canvas {
+    background-color: white;
+    border: 1px solid rgb(136, 117, 117);
+    border-radius: 2px;
+    margin: 0 auto;
+    display: block;
+}
