@@ -5,14 +5,17 @@ window.drawio = {
     ctx: document.getElementById('my-canvas').getContext('2d'),
     selectedElement: null,
     styles: {
-        fill: true
+        fill: true,
+        fillStyle: '#000000',
+        strokeStyle: '#000000'
     },
     availableShapes: {
         RECTANGLE_FILLED: 'rectangle-filled',
         RECTANGLE_OUTLINE: 'rectangle-outline',
         CIRCLE_FILLED: 'circle-filled',
         CIRCLE_OUTLINE: 'circle-outline',
-        LINE: 'line'
+        LINE: 'line',
+        DRAWING: 'drawing'
     }
 };
 
@@ -31,6 +34,18 @@ $(function() {
         drawio.selectedShape = $(this).data('shape');
         // use another data variable for fill/outline and set the style here to
         // eliminate the need for separate cases for the same shape
+    });
+
+    $("#fill-color").on('change', function() {
+        var color = $("#fill-color").spectrum('get').toHexString();
+        drawio.styles.fillStyle = color;
+        drawio.ctx.fillStyle = color;
+    });
+
+    $("#line-color").on('change', function() {
+        var color = $("#line-color").spectrum('get').toHexString();
+        drawio.styles.strokeStyle = color;
+        drawio.ctx.strokeStyle = color;
     });
 
     $('#my-canvas').on('mousedown', function(mouseEvent) {
@@ -54,6 +69,9 @@ $(function() {
             case drawio.availableShapes.LINE:
                 drawio.selectedElement = new Line({x: mouseEvent.offsetX, y: mouseEvent.offsetY}, drawio.styles);
                 break;
+            case drawio.availableShapes.DRAWING:
+                drawio.selectedElement = new Drawing({x: mouseEvent.offsetX, y: mouseEvent.offsetY}, drawio.styles);
+                break;
         }
     });
 
@@ -70,3 +88,11 @@ $(function() {
         drawio.selectedElement = null;
     });
 })
+
+$("#fill-color").spectrum({
+    color: "#000000"
+});
+
+$("#line-color").spectrum({
+    color: "#000000"
+});
