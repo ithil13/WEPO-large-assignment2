@@ -15,8 +15,9 @@ Shape.prototype.setStyles = function() {
 
 Shape.prototype.render = function() {};
 
-Shape.prototype.move = function(position) {
-    this.position = position;
+Shape.prototype.move = function(xMove, yMove) {
+    this.position.x = this.position.x + xMove;
+    this.position.y = this.position.y + yMove;
 };
 
 Shape.prototype.resize = function() {};
@@ -90,6 +91,13 @@ Line.prototype.resize = function(x, y) {
     this.endPoint.y = y;
 };
 
+Line.prototype.move = function(xMove, yMove) {
+    this.position.x = this.position.x + xMove;
+    this.position.y = this.position.y + yMove;
+    this.endPoint.x = this.endPoint.x + xMove;
+    this.endPoint.y = this.endPoint.y + yMove;
+}
+
 /**** Drawing ****/
 
 function Drawing(position, styles) {
@@ -113,3 +121,9 @@ Drawing.prototype.render = function() {
 Drawing.prototype.resize = function(x, y) {
     this.points.push({x: x, y: y});
 };
+
+Drawing.prototype.move = function(xMove, yMove) {
+    this.position.x = this.position.x + xMove;
+    this.position.y = this.position.y + yMove;
+    this.points = this.points.map(p => { return {x: p.x + xMove, y: p.y + yMove} });
+}
