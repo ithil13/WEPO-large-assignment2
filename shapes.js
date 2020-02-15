@@ -4,6 +4,7 @@
 function Shape(position, styles) {
     this.position = position;
     this.styles = {...styles};
+    this.path = null;
 };
 
 Shape.prototype.setStyles = function() {
@@ -32,8 +33,10 @@ Rectangle.prototype.constructor = Rectangle;
 
 Rectangle.prototype.render = function() {
     this.setStyles();
-    if (this.styles.fill) drawio.ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
-    else drawio.ctx.strokeRect(this.position.x, this.position.y, this.width, this.height);
+    this.path = new Path2D();
+    this.path.rect(this.position.x, this.position.y, this.width, this.height);
+    if (this.styles.fill) drawio.ctx.fill(this.path);
+    else drawio.ctx.stroke(this.path);
 };
 
 Rectangle.prototype.resize = function(x, y) {
@@ -53,10 +56,10 @@ Circle.prototype.constructor = Circle;
 
 Circle.prototype.render = function() {
     this.setStyles();
-    drawio.ctx.beginPath();
-    drawio.ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
-    if (this.styles.fill) drawio.ctx.fill();
-    else drawio.ctx.stroke();
+    this.path = new Path2D();
+    this.path.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
+    if (this.styles.fill) drawio.ctx.fill(this.path);
+    else drawio.ctx.stroke(this.path);
 };
 
 Circle.prototype.resize = function(x, y) {
@@ -74,10 +77,11 @@ Line.prototype = Object.create(Shape.prototype);
 Line.prototype.constructor = Line;
 
 Line.prototype.render = function() {
-    drawio.ctx.beginPath();
-    drawio.ctx.moveTo(this.position.x, this.position.y);
-    drawio.ctx.lineTo(this.endPoint.x, this.endPoint.y);
-    drawio.ctx.stroke();
+    this.setStyles();
+    this.path = new Path2D();
+    this.path.moveTo(this.position.x, this.position.y);
+    this.path.lineTo(this.endPoint.x, this.endPoint.y);
+    drawio.ctx.stroke(this.path);
 };
 
 Line.prototype.resize = function(x, y) {
@@ -96,12 +100,13 @@ Drawing.prototype = Object.create(Shape.prototype);
 Drawing.prototype.constructor = Drawing;
 
 Drawing.prototype.render = function() {
-    drawio.ctx.beginPath();
-    drawio.ctx.moveTo(this.position.x, this.position.y);
+    this.setStyles();
+    this.path = new Path2D();
+    this.path.moveTo(this.position.x, this.position.y);
     for (i = 1; i < this.points.length; i++) {
-        drawio.ctx.lineTo(this.points[i].x, this.points[i].y);
+        this.path.lineTo(this.points[i].x, this.points[i].y);
     }
-    drawio.ctx.stroke();
+    drawio.ctx.stroke(this.path);
     drawio.ctx.closePath();
 };
 
