@@ -10,6 +10,7 @@ function Shape(position, styles) {
 Shape.prototype.setStyles = function() {
     drawio.ctx.fillStyle = this.styles.fillStyle;
     drawio.ctx.strokeStyle = this.styles.strokeStyle;
+    drawio.ctx.lineWidth = this.styles.lineWidth;
 };
 
 Shape.prototype.render = function() {};
@@ -107,7 +108,6 @@ Drawing.prototype.render = function() {
         this.path.lineTo(this.points[i].x, this.points[i].y);
     }
     drawio.ctx.stroke(this.path);
-    drawio.ctx.closePath();
 };
 
 Drawing.prototype.resize = function(x, y) {

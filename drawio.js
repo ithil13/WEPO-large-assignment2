@@ -7,7 +7,8 @@ window.drawio = {
     styles: {
         fill: true,
         fillStyle: '#000000',
-        strokeStyle: '#000000'
+        strokeStyle: '#000000',
+        lineWidth: 5
     },
     availableShapes: {
         RECTANGLE: 'rectangle',
@@ -40,11 +41,17 @@ $(function() {
     function selectShape(x,y) {
         drawio.ctx.clearRect(0, 0, drawio.canvas.width, drawio.canvas.height);
         for (var i = 0; i < drawio.shapes.length; i++) {
-            drawio.shapes[i].render();
-            if (drawio.ctx.isPointInPath(drawio.shapes[i].path, x, y)) {
+            if (drawio.ctx.isPointInStroke(drawio.shapes[i].path, x, y) || drawio.ctx.isPointInPath(drawio.shapes[i].path, x, y)) {
                 drawio.selectedElement = drawio.shapes[i];
-                console.log("selected:", drawio.selectedElement)
             }
+            drawio.shapes[i].render();
+        }
+        if (drawio.selectedElement) {
+            drawio.ctx.strokeStyle = 'white';
+            drawio.ctx.lineWidth = 3;
+            drawio.ctx.setLineDash([4, 4]);
+            drawio.ctx.stroke(drawio.selectedElement.path);
+            drawio.ctx.setLineDash([]);
         }
     };
 
@@ -69,6 +76,7 @@ $(function() {
     });
 
     $('#my-canvas').on('mousedown', function(mouseEvent) {
+        drawio.selectedElement = null;
         switch (drawio.selectedShape) {
             case drawio.availableShapes.RECTANGLE:
                 drawio.selectedElement = new Rectangle({x: mouseEvent.offsetX, y: mouseEvent.offsetY}, drawio.styles);
@@ -86,7 +94,7 @@ $(function() {
     });
 
     $('#my-canvas').on('mousemove', function(mouseEvent) {
-        if (drawio.selectedElement) {
+        if (drawio.selectedElement && drawio.selectedShape != drawio.availableShapes.SELECT) {
             drawio.ctx.clearRect(0, 0, drawio.canvas.width, drawio.canvas.height);
             drawio.selectedElement.resize(mouseEvent.offsetX, mouseEvent.offsetY);
             drawCanvas();
@@ -98,7 +106,7 @@ $(function() {
             drawio.shapes.push(drawio.selectedElement);
             drawio.selectedElement = null;
         } else if (drawio.selectedShape == drawio.availableShapes.SELECT) {
-            drawio.selectedElement = selectShape(mouseEvent.offsetX, mouseEvent.offsetY);
+            selectShape(mouseEvent.offsetX, mouseEvent.offsetY);
         }
     });
 
