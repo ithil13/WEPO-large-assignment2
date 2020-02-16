@@ -65,7 +65,7 @@ $(function() {
         drawio.ctx.setLineDash([4, 4]);
         drawio.ctx.stroke(drawio.selectedElement.path);
         drawio.ctx.setLineDash([]);
-    }
+    };
 
     $('.icon').on('click', function() {
         $('.icon').removeClass('selected');
@@ -81,7 +81,6 @@ $(function() {
             $('.text-settings').addClass('hidden');
         }
     });
-
     $("#fill-color").on('change', function() {
         var color = $("#fill-color").spectrum('get').toHexString();
         drawio.styles.fillStyle = color;
@@ -180,4 +179,25 @@ $(function() {
         showPalette: true,
         palette: drawio.colorPalette
     });
+
+    $('.line-widht-picker').on('click', function() {
+        document.getElementById("myDropdown").classList.toggle("show");
+    })
+    $('.line-width-picker-button').on('click', function() {
+        var clicked = $(this).attr('value');
+        drawio.styles.lineWidth = clicked;
+    })
+    $(window).on('click', function() {
+        if (!event.target.matches('.dropbtn')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            var i;
+            for (i = 0; i < dropdowns.length; i++) {
+              var openDropdown = dropdowns[i];
+              if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+              }
+            }
+          }
+        
+    })
 })
