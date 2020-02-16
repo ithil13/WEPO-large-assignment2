@@ -145,6 +145,10 @@ Text.prototype.constructor = Text;
 
 Text.prototype.render = function() {
     this.setStyles();
+    let topEdge = this.position.y - this.styles.fontSize;
+    let width = drawio.ctx.measureText(this.text).width + 6
+    this.path = new Path2D();
+    this.path.rect(this.position.x - 3, topEdge, width, this.styles.fontSize + 6);
     drawio.ctx.fillText(this.text, this.position.x, this.position.y);
 };
 
@@ -153,7 +157,7 @@ Text.prototype.resize = function(newText) {
 };
 
 Text.prototype.isPointInElement = function(x, y) {
-    let textWidth = drawio.ctx.measureText(this.text).width;
-    drawio.ctx.rect(this.position.x, this.position.y, textWidth, this.styles.fontSize);
-    return drawio.ctx.isPointInPath(x, y);
+    let rightEdge = this.position.x + drawio.ctx.measureText(this.text).width;
+    let topEdge = this.position.y - this.styles.fontSize;
+    return this.position.x <= x && x <= rightEdge && topEdge <= y && y <= this.position.y;
 }

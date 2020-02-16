@@ -60,11 +60,12 @@ $(function() {
     };
 
     function drawSelectedIndicator() {
-        drawio.ctx.strokeStyle = 'white';
+        drawio.ctx.save();
+        drawio.ctx.strokeStyle = 'grey';
         drawio.ctx.lineWidth = 3;
         drawio.ctx.setLineDash([4, 4]);
         drawio.ctx.stroke(drawio.selectedElement.path);
-        drawio.ctx.setLineDash([]);
+        drawio.ctx.restore();
     };
 
     $('.icon').on('click', function() {
@@ -79,6 +80,12 @@ $(function() {
         }
         if (drawio.selectedShape != drawio.availableShapes.TEXT) {
             $('.text-settings').addClass('hidden');
+        }
+        if (drawio.editingText) {
+            drawio.shapes.push(drawio.newElement);
+            drawio.newElement = null;
+            drawio.editingText = false;
+            $('#text-input').val('insert text');
         }
     });
     $("#fill-color").on('change', function() {
