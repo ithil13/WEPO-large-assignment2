@@ -54,6 +54,15 @@
                     <p>Line color:</p>
                     <input type='text' id="line-color" />
                 </div>
+                <div class="line-widht-picker">
+                    <button class="dropbtn" onchange="selectFromDropDown(this.value)">Line width</button>
+                    <div id="myDropdown" class="dropdown-content">
+                      <a value="2" class="line-width-picker-button"><hr style="height:1px"></a>
+                      <a value="5" class="line-width-picker-button"><hr style="height:3px"></a>
+                      <a value="8" class="line-width-picker-button"><hr style="height:5px"></a>
+                      <a value="12" class="line-width-picker-button"><hr style="height:7px"></a>
+                    </div>
+                  </div>
             </nav>
         </aside>
         <canvas id="my-canvas" width="800" height="600">
