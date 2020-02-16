@@ -22,7 +22,7 @@
                 <div class="icon" data-shape="load-image">
                     <i class="fa fa-folder-open-o" aria-hidden="true"></i>
                 </div>
-                <div class="icon selected" data-shape="rectangle" data-fill="true">
+                <div class="icon" data-shape="rectangle" data-fill="true">
                     <i class="fa fa-square" aria-hidden="true"></i>
                 </div>
                 <div class="icon" data-shape="circle" data-fill="true">
@@ -31,7 +31,7 @@
                 <div class="icon" data-shape="line">
                     <i aria-hidden="true">/</i>
                 </div>
-                <div class="icon" data-shape="drawing">
+                <div class="icon selected" data-shape="drawing">
                     <i class="fa fa-pencil" aria-hidden="true"></i>
                 </div>
                 <div class="icon" data-shape="rectangle" data-fill="false">
@@ -46,13 +46,16 @@
                 <div class="icon" data-shape="select">
                     <i class="fa fa-mouse-pointer" aria-hidden="true"></i>
                 </div>
+                <div class="text-settings hidden">
+                    <input id="text-input" type="text" value="insert text">
+                </div>
                 <div class="color-picker">
                     <p>Fill color:</p>
-                    <input type='text' id="fill-color" />
+                    <input class="color-input" type='text' id="fill-color" />
                 </div>
                 <div class="color-picker">
                     <p>Line color:</p>
-                    <input type='text' id="line-color" />
+                    <input class="color-input" type='text' id="line-color" />
                 </div>
             </nav>
         </aside>

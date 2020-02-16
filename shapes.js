@@ -11,6 +11,7 @@ Shape.prototype.setStyles = function() {
     drawio.ctx.fillStyle = this.styles.fillStyle;
     drawio.ctx.strokeStyle = this.styles.strokeStyle;
     drawio.ctx.lineWidth = this.styles.lineWidth;
+    drawio.ctx.font = this.styles.fontSize + 'px ' + this.styles.font;
 };
 
 Shape.prototype.render = function() {};
@@ -21,6 +22,10 @@ Shape.prototype.move = function(xMove, yMove) {
 };
 
 Shape.prototype.resize = function() {};
+
+Shape.prototype.isPointInElement = function(x, y) {
+    return drawio.ctx.isPointInStroke(this.path, x, y) || drawio.ctx.isPointInPath(this.path, x, y);
+}
 
 /**** Rectangle ****/
 
@@ -126,4 +131,29 @@ Drawing.prototype.move = function(xMove, yMove) {
     this.position.x = this.position.x + xMove;
     this.position.y = this.position.y + yMove;
     this.points = this.points.map(p => { return {x: p.x + xMove, y: p.y + yMove} });
+}
+
+/**** Text ****/
+
+function Text(position, styles) {
+    Shape.call(this, position, styles);
+    this.text = 'text will appear here';
+};
+
+Text.prototype = Object.create(Shape.prototype);
+Text.prototype.constructor = Text;
+
+Text.prototype.render = function() {
+    this.setStyles();
+    drawio.ctx.fillText(this.text, this.position.x, this.position.y);
+};
+
+Text.prototype.resize = function(newText) {
+    this.text = newText;
+};
+
+Text.prototype.isPointInElement = function(x, y) {
+    let textWidth = drawio.ctx.measureText(this.text).width;
+    drawio.ctx.rect(this.position.x, this.position.y, textWidth, this.styles.fontSize);
+    return drawio.ctx.isPointInPath(x, y);
 }

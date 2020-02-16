@@ -35,6 +35,10 @@ nav {
     color: rgba(255, 255, 255, 0.5);
 }
 
+.hidden {
+    display: none;
+}
+
 canvas {
     background-color: white;
     border: 1px solid rgb(136, 117, 117);
