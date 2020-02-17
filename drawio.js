@@ -144,7 +144,6 @@ $(function() {
         return result;
     }
     function saveImage() {
-        window.localStorage.clear();
         var x = drawio.shapes;
         var toStore = stringifyDrawioObject(x);
         myStorage = window.localStorage;
