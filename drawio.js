@@ -67,43 +67,50 @@ $(function() {
         drawio.ctx.stroke(drawio.selectedElement.path);
         drawio.ctx.restore();
     };
+
     function loadImage() {
         var names = "";
         for(const [key, value] of Object.entries(localStorage)){
-            names += key + ", "
+            names += key + ",\n  ";
         }
-        var loadImg = prompt("Which image would you like to load? \nCurrent images in storage are:\n    " + names);
+        var loadImg = prompt("Which image would you like to load? \nCurrent images in storage are:\n  " + names);
         var x = window.localStorage.getItem(loadImg);
         drawImageFromString(x);
-    }
+    };
+
     function drawImageFromString(x){
+        drawio.shapes = [];
         var arr = x.split(";");
-        console.log(arr.length);
-        for(var i = 0; i < arr.length-1; i++){
+        for(var i = 0; i < arr.length - 1; i++){
             var items = arr[i].split(',');
             if(items[0] == 'Rectangle'){
-                var add = new Rectangle({x:items[1],y:items[2]},{fill: items[3], fillStyle: items[4],
+                var add = new Rectangle({x:items[1],y:items[2]},{fill: items[3] == 'true', fillStyle: items[4],
                 strokeStyle: items[5], lineWidth: items[6]});
                 add.width = items[7];
                 add.height = items[8];
             }
             else if(items[0] == 'Circle'){
-                var add = new Circle({x:items[1],y:items[2]},{fill: items[3], fillStyle: items[4],
+                var add = new Circle({x:items[1],y:items[2]},{fill: items[3] == 'true', fillStyle: items[4],
                     strokeStyle: items[5], lineWidth: items[6]});
                 add.radius = items[7];  
             }
             else if(items[0] == 'Line'){
-                var add = new Line({x:items[1],y:items[2]},{fill: items[3], fillStyle: items[4],
+                var add = new Line({x:items[1],y:items[2]},{fill: items[3] == 'true', fillStyle: items[4],
                     strokeStyle: items[5], lineWidth: items[6]})
                 add.endPoint.x = items[7];
                 add.endPoint.y = items[8];
             }
             else if(items[0] == 'Drawing'){
-                var add = new Drawing({x:items[1],y:items[2]},{fill: items[3], fillStyle: items[4],
+                var add = new Drawing({x:items[1],y:items[2]},{fill: items[3] == 'true', fillStyle: items[4],
                     strokeStyle: items[5], lineWidth: items[6]});
-                for(i = 7; i < items.length; i = i + 2){
-                    add.points.push({x:items[i],y:items[i+1]})
+                for(j = 7; j < items.length; j = j + 2){
+                    add.points.push({x:items[j],y:items[j+1]})
                 }
+            }
+            else if(items[0] == 'Text'){
+                var add = new Text({x:items[1],y:items[2]},{fill: items[3] == 'true', fillStyle: items[4],
+                    strokeStyle: items[5], lineWidth: items[6], font: items[7], fontSize: items[8]})
+                add.text = items[9];
             }
             drawio.shapes.push(add);
             drawCanvas();
@@ -112,37 +119,32 @@ $(function() {
     function stringifyDrawioObject(x){
         result = "";
         for (i in x) {
-            if(Object.getPrototypeOf(x[i]).constructor.name == "Rectangle"){
-                result += Object.getPrototypeOf(x[i]).constructor.name + "," +
-                x[i].position.x.toString() + "," + x[i].position.y.toString() + ","
-                + x[i].styles.fill + "," + x[i].styles.fillStyle + "," + x[i].styles.strokeStyle
-                + "," + x[i].styles.lineWidth + "," + x[i].width + "," + x[i].height + ";";
-            }
-            else if(Object.getPrototypeOf(x[i]).constructor.name == "Circle"){
-                result += Object.getPrototypeOf(x[i]).constructor.name + "," +
-                x[i].position.x.toString() + "," + x[i].position.y.toString() + ","
-                + x[i].styles.fill + "," + x[i].styles.fillStyle + "," + x[i].styles.strokeStyle
-                + "," + x[i].styles.lineWidth + "," + x[i].radius + ";";
-            }
-            else if(Object.getPrototypeOf(x[i]).constructor.name == "Line"){
-                result += Object.getPrototypeOf(x[i]).constructor.name + "," +
-                x[i].position.x.toString() + "," + x[i].position.y.toString() + ","
-                + x[i].styles.fill + "," + x[i].styles.fillStyle + "," + x[i].styles.strokeStyle
-                + "," + x[i].styles.lineWidth + "," + x[i].endPoint.x + "," + x[i].endPoint.y + ";";
-            }
-            else{
-                result += Object.getPrototypeOf(x[i]).constructor.name + "," +
+            result += Object.getPrototypeOf(x[i]).constructor.name + "," +
                 x[i].position.x.toString() + "," + x[i].position.y.toString() + ","
                 + x[i].styles.fill + "," + x[i].styles.fillStyle + "," + x[i].styles.strokeStyle
                 + "," + x[i].styles.lineWidth;
-                for(u in x[i].points){
+            if (Object.getPrototypeOf(x[i]).constructor.name == "Rectangle") {
+                result +=  "," + x[i].width + "," + x[i].height;
+            }
+            else if (Object.getPrototypeOf(x[i]).constructor.name == "Circle") {
+                result += "," + x[i].radius;
+            }
+            else if (Object.getPrototypeOf(x[i]).constructor.name == "Line") {
+                result += "," + x[i].endPoint.x + "," + x[i].endPoint.y;
+            }
+            else if (Object.getPrototypeOf(x[i]).constructor.name == "Drawing") {
+                for (u in x[i].points) {
                     result += "," + x[i].points[u].x + "," + x[i].points[u].y;
                 }
-                result += ";";
             }
+            else if (Object.getPrototypeOf(x[i]).constructor.name == "Text") {
+                result += "," + x[i].styles.font + "," + x[i].styles.fontSize + "," + x[i].text;
+            }
+            result += ";";
         }
         return result;
     }
+
     function saveImage() {
         var x = drawio.shapes;
         var toStore = stringifyDrawioObject(x);
@@ -150,6 +152,7 @@ $(function() {
         var img = prompt("Image name: ");
         localStorage.setItem(img, toStore);
     }
+
     $('.icon').on('click', function() {
         $('.icon').removeClass('selected');
         $(this).addClass('selected');
@@ -176,8 +179,9 @@ $(function() {
                 drawio.editingText = false;
                 $('#text-input').val('insert text');
             }
-            }
+        }
     });
+
     $("#fill-color").on('change', function() {
         var color = $("#fill-color").spectrum('get').toHexString();
         drawio.styles.fillStyle = color;
