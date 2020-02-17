@@ -61,17 +61,107 @@ $(function() {
         drawio.ctx.stroke(drawio.selectedElement.path);
         drawio.ctx.setLineDash([]);
     };
-
+    function loadImage() {
+        var names = "";
+        for(const [key, value] of Object.entries(localStorage)){
+            names += key + ", "
+        }
+        var loadImg = prompt("Which image would you like to load? \nCurrent images in storage are:\n    " + names);
+        var x = window.localStorage.getItem(loadImg);
+        drawImageFromString(x);
+    }
+    function drawImageFromString(x){
+        var arr = x.split(";");
+        console.log(arr.length);
+        for(var i = 0; i < arr.length-1; i++){
+            var items = arr[i].split(',');
+            if(items[0] == 'Rectangle'){
+                var add = new Rectangle({x:items[1],y:items[2]},{fill: items[3], fillStyle: items[4],
+                strokeStyle: items[5], lineWidth: items[6]});
+                add.width = items[7];
+                add.height = items[8];
+            }
+            else if(items[0] == 'Circle'){
+                var add = new Circle({x:items[1],y:items[2]},{fill: items[3], fillStyle: items[4],
+                    strokeStyle: items[5], lineWidth: items[6]});
+                add.radius = items[7];  
+            }
+            else if(items[0] == 'Line'){
+                var add = new Line({x:items[1],y:items[2]},{fill: items[3], fillStyle: items[4],
+                    strokeStyle: items[5], lineWidth: items[6]})
+                add.endPoint.x = items[7];
+                add.endPoint.y = items[8];
+            }
+            else if(items[0] == 'Drawing'){
+                var add = new Drawing({x:items[1],y:items[2]},{fill: items[3], fillStyle: items[4],
+                    strokeStyle: items[5], lineWidth: items[6]});
+                for(i = 7; i < items.length; i = i + 2){
+                    add.points.push({x:items[i],y:items[i+1]})
+                }
+            }
+            drawio.shapes.push(add);
+            drawCanvas();
+        }
+    }
+    function stringifyDrawioObject(x){
+        result = "";
+        for (i in x) {
+            if(Object.getPrototypeOf(x[i]).constructor.name == "Rectangle"){
+                result += Object.getPrototypeOf(x[i]).constructor.name + "," +
+                x[i].position.x.toString() + "," + x[i].position.y.toString() + ","
+                + x[i].styles.fill + "," + x[i].styles.fillStyle + "," + x[i].styles.strokeStyle
+                + "," + x[i].styles.lineWidth + "," + x[i].width + "," + x[i].height + ";";
+            }
+            else if(Object.getPrototypeOf(x[i]).constructor.name == "Circle"){
+                result += Object.getPrototypeOf(x[i]).constructor.name + "," +
+                x[i].position.x.toString() + "," + x[i].position.y.toString() + ","
+                + x[i].styles.fill + "," + x[i].styles.fillStyle + "," + x[i].styles.strokeStyle
+                + "," + x[i].styles.lineWidth + "," + x[i].radius + ";";
+            }
+            else if(Object.getPrototypeOf(x[i]).constructor.name == "Line"){
+                result += Object.getPrototypeOf(x[i]).constructor.name + "," +
+                x[i].position.x.toString() + "," + x[i].position.y.toString() + ","
+                + x[i].styles.fill + "," + x[i].styles.fillStyle + "," + x[i].styles.strokeStyle
+                + "," + x[i].styles.lineWidth + "," + x[i].endPoint.x + "," + x[i].endPoint.y + ";";
+            }
+            else{
+                result += Object.getPrototypeOf(x[i]).constructor.name + "," +
+                x[i].position.x.toString() + "," + x[i].position.y.toString() + ","
+                + x[i].styles.fill + "," + x[i].styles.fillStyle + "," + x[i].styles.strokeStyle
+                + "," + x[i].styles.lineWidth;
+                for(u in x[i].points){
+                    result += "," + x[i].points[u].x + "," + x[i].points[u].y;
+                }
+                result += ";";
+            }
+        }
+        return result;
+    }
+    function saveImage() {
+        window.localStorage.clear();
+        var x = drawio.shapes;
+        var toStore = stringifyDrawioObject(x);
+        myStorage = window.localStorage;
+        var img = prompt("Image name: ");
+        localStorage.setItem(img, toStore);
+    }
     $('.icon').on('click', function() {
         $('.icon').removeClass('selected');
         $(this).addClass('selected');
-        drawio.selectedElement = null;
-        drawCanvas();
-        drawio.selectedShape = $(this).data('shape');
-        var fillSetting = $(this).data('fill');
-        if (fillSetting != undefined) {
-            drawio.styles.fill = fillSetting;
+        if(this.classList.contains('load')){
+            loadImage();
         }
+        else if(this.classList.contains('save')){
+            saveImage();
+        }
+        else{        
+            drawio.selectedElement = null;
+            drawCanvas();
+            drawio.selectedShape = $(this).data('shape');
+            var fillSetting = $(this).data('fill');
+            if (fillSetting != undefined) {
+                drawio.styles.fill = fillSetting;
+        }}
     });
     $("#fill-color").on('change', function() {
         var color = $("#fill-color").spectrum('get').toHexString();
