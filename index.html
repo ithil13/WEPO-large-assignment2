@@ -10,49 +10,58 @@
     <body>
         <aside>
             <nav>
-                <div class="icon disabled" id="undo" data-shape="undo">
+                <div class="icon action disabled" id="undo" data-action="undo">
                     <i class="fa fa-undo" aria-hidden="true"></i>
                 </div>
-                <div class="icon disabled" id="redo" data-shape="redo">
+                <div class="icon action disabled" id="redo" data-action="redo">
                     <i class="fa fa-repeat" aria-hidden="true"></i>
                 </div>
-                <div class="icon save" data-shape="save">
+                <div class="icon action save" data-action="save">
                     <i class="fa fa-save" aria-hidden="true"></i>
                 </div>
-                <div class="icon load" data-shape="load-image">
+                <div class="icon action load" data-action="load-image">
                     <i class="fa fa-folder-open-o" aria-hidden="true"></i>
                 </div>
-                <div class="icon" data-shape="rectangle" data-fill="true">
+                <div class="icon shape" data-shape="rectangle" data-fill="true">
                     <i class="fa fa-square" aria-hidden="true"></i>
                 </div>
-                <div class="icon" data-shape="circle" data-fill="true">
+                <div class="icon shape" data-shape="circle" data-fill="true">
                     <i class="fa fa-circle" aria-hidden="true"></i>
                 </div>
-                <div class="icon" data-shape="line">
+                <div class="icon shape" data-shape="line">
                     <i aria-hidden="true">/</i>
                 </div>
-                <div class="icon selected" data-shape="drawing">
+                <div class="icon shape selected" data-shape="drawing">
                     <i class="fa fa-pencil" aria-hidden="true"></i>
                 </div>
-                <div class="icon" data-shape="rectangle" data-fill="false">
+                <div class="icon shape" data-shape="rectangle" data-fill="false">
                     <i class="fa fa-square-o" aria-hidden="true"></i>
                 </div>
-                <div class="icon" data-shape="circle" data-fill="false">
+                <div class="icon shape" data-shape="circle" data-fill="false">
                     <i class="fa fa-circle-thin" aria-hidden="true"></i>
                 </div>
-                <div class="icon" data-shape="text">
+                <div class="icon shape" data-shape="text">
                     <i class="fa fa-font" aria-hidden="true"></i>
                 </div>
-                <div class="icon" data-shape="select">
+                <div class="icon shape" data-shape="select">
                     <i class="fa fa-mouse-pointer" aria-hidden="true"></i>
                 </div>
                 <div class="text-settings hidden">
-                    <input id="text-input" type="text" value="insert text"><br />
-                    <input id="font-size" type="number" value="20">
-                    <select id="font-settings">
-                        <option value="0" selected>Comic Sans MS</option>
-                        <option value="1">Arial</option>
-                        <option value="2">Times New Roman Italic</option>
+                    <input class="font-options" id="text-input" type="text" value="insert text"><br />
+                    <input class="font-options" id="font-size" type="number" value="20">
+                    <select class="font-options" id="font-style">
+                        <option value="" selected>Normal</option>
+                        <option value="italic">Italic</option>
+                        <option value="bold">Bold</option>
+                        <option value="italic bold">Italic bold</option>
+                    </select>
+                    <select class="font-options" id="font-settings">
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Courier New">Courier New</option>
+                        <option value="Comic Sans MS" selected>Comic Sans MS</option>
+                        <option value="Lucidatypewriter, monospace">Lucidatypewriter</option>
+                        <option value="Arial">Arial</option>
+                        <option value="fantasy">Fantasy</option>
                     </select>
                 </div>
                 <div class="color-picker">

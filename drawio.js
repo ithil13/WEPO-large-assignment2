@@ -14,8 +14,9 @@ window.drawio = {
         fillStyle: '#000000',
         strokeStyle: '#000000',
         lineWidth: 5,
-        font: 'sans-serif',
-        fontSize: 16
+        font: 'Comic Sans MS',
+        fontSize: 20,
+        fontStyle: ''
     },
     availableShapes: {
         RECTANGLE: 'rectangle',
@@ -56,6 +57,10 @@ $(function() {
             drawio.deletedShapes.splice(0, 1);
         }
         drawCanvas();
+        enableUndoRedo('redo');
+        if (drawio.shapes.length == 0) {
+            disableUndoRedo('undo');
+        }
     }
 
     function redoShape(){
@@ -63,6 +68,10 @@ $(function() {
         let redoShape = drawio.deletedShapes.pop();
         drawio.shapes.push(redoShape);
         drawCanvas();
+        enableUndoRedo('undo');
+        if (drawio.deletedShapes.length == 0) {
+            disableUndoRedo('redo');
+        }
     }
 
     function selectShape(x,y) {
@@ -172,56 +181,51 @@ $(function() {
         localStorage.setItem(img, toStore);
     }
 
-    function disabled(){
-        if(!($(this).data('shape') == "undo" || $(this).data('shape') == "redo")){
-            disabledUndoRedo("undo");
-            disabledUndoRedo("redo");
-        }
-    }
-
-    function disabledUndoRedo(text){
+    function disableUndoRedo(text){
         if(!document.getElementById(text).classList.contains('disabled')){
             $('#'+text).addClass('disabled');
         }
     }
 
-    $('.icon').on('click', function() {
-        $('.icon').removeClass('selected');
-        $(this).addClass('selected');
+    function enableUndoRedo(text){
+        if(document.getElementById(text).classList.contains('disabled')){
+            $('#'+text).removeClass('disabled');
+        }
+    }
 
-        disabled();
-
+    $('.action').on('click', function() {
         if(this.classList.contains('load')){
             loadImage();
         }
         else if(this.classList.contains('save')){
             saveImage();
         }
-        else if ($(this).data('shape') == "undo"){
-            $(this).removeClass('disabled');
+        else if ($(this).data('action') == "undo"){
             undoShape();
         }
-        else if ($(this).data('shape') == "redo"){
-            $(this).removeClass('disabled');
+        else if ($(this).data('action') == "redo"){
             redoShape();
         }
-        else{
-            drawio.selectedElement = null;
-            drawCanvas();
-            drawio.selectedShape = $(this).data('shape');
-            var fillSetting = $(this).data('fill');
-            if (fillSetting != undefined) {
-                drawio.styles.fill = fillSetting;
-            }
-            if (drawio.selectedShape != drawio.availableShapes.TEXT) {
-                $('.text-settings').addClass('hidden');
-            }
-            if (drawio.editingText) {
-                drawio.shapes.push(drawio.newElement);
-                drawio.newElement = null;
-                drawio.editingText = false;
-                $('#text-input').val('Insert text');
-            }
+    });
+
+    $('.shape').on('click', function() {
+        $('.shape').removeClass('selected');
+        $(this).addClass('selected');
+        drawio.selectedElement = null;
+        drawCanvas();
+        drawio.selectedShape = $(this).data('shape');
+        var fillSetting = $(this).data('fill');
+        if (fillSetting != undefined) {
+            drawio.styles.fill = fillSetting;
+        }
+        if (drawio.selectedShape != drawio.availableShapes.TEXT) {
+            $('.text-settings').addClass('hidden');
+        }
+        if (drawio.editingText) {
+            drawio.shapes.push(drawio.newElement);
+            drawio.newElement = null;
+            drawio.editingText = false;
+            $('#text-input').val('Insert text');
         }
     });
 
@@ -307,21 +311,46 @@ $(function() {
                     drawio.newElement = null;
                 }
         }
+        if (drawio.selectedShape != drawio.availableShapes.SELECT) {
+            enableUndoRedo('undo');
+        }
     });
 
     $('#text-input').on('keyup', function() {
         if (drawio.editingText) {
-            /*  To change the font / fontSize you need to 
-                change font / fontSize and then change the text to see the changes */
-            let font = $('#font-settings')[0].options[$('#font-settings')[0].value].text;
-            let fontSize = $('#font-size')[0].value;
-            drawio.newElement.styles.fillStyle = drawio.styles.fillStyle;
             text = $(this).val();
-            drawio.newElement.resize(text, font, fontSize);
+            drawio.newElement.resize(text);
             drawCanvas();
             drawio.newElement.render();
         }
     })
+
+    $('#font-size').on('change', function() {
+        if (drawio.editingText) {
+            let fontSize = $(this).val();
+            drawio.newElement.restyle('fontSize', fontSize);
+            drawCanvas();
+            drawio.newElement.render();
+        }
+    });
+
+    $('#font-settings').on('change', function() {
+        if (drawio.editingText) {
+            let font = $(this).val();
+            drawio.newElement.restyle('font', font);
+            drawCanvas();
+            drawio.newElement.render();
+        }
+    });
+
+    $('#font-style').on('change', function() {
+        if (drawio.editingText) {
+            let style = $(this).val();
+            drawio.newElement.restyle('fontStyle', style);
+            drawCanvas();
+            drawio.newElement.render();
+        }
+    });
 
     $(".color-input").spectrum({
         color: "#000000",
@@ -349,6 +378,5 @@ $(function() {
               }
             }
           }
-        
     })
 })

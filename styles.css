@@ -87,16 +87,18 @@ hr {
   .dropdown-content a:hover {background-color: #ddd}
 
 
-  #font-size, #text-input{
-    width: 180px;
-    height: 20px;  
+  .font-options {
+    width: 185px;
+    height: 25px;  
     margin: 5px;
   }
 
-  #font-settings{
-    width: 185px;
-    height: 25px;
-    margin: 5px;
+  #font-size {
+      width: 40px;
+  }
+
+  #font-style {
+      width: 130px;
   }
 
   .show {display:block;}

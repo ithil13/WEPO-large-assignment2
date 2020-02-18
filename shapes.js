@@ -11,7 +11,7 @@ Shape.prototype.setStyles = function() {
     drawio.ctx.fillStyle = this.styles.fillStyle;
     drawio.ctx.strokeStyle = this.styles.strokeStyle;
     drawio.ctx.lineWidth = this.styles.lineWidth;
-    drawio.ctx.font = this.styles.fontSize + 'px ' + this.styles.font;
+    drawio.ctx.font =  this.styles.fontStyle + ' ' + this.styles.fontSize + 'px ' + this.styles.font;
 };
 
 Shape.prototype.render = function() {};
@@ -136,9 +136,6 @@ Drawing.prototype.move = function(xMove, yMove) {
 /**** Text ****/
 
 function Text(position, styles) {
-    // Default font is Comic Sans MS and default fontSize is 20px
-    styles.font = "Comic Sans MS";
-    styles.fontSize = "20";
     Shape.call(this, position, styles);
     this.text = 'Insert text';
 };
@@ -155,10 +152,12 @@ Text.prototype.render = function() {
     drawio.ctx.fillText(this.text, this.position.x, this.position.y);
 };
 
-Text.prototype.resize = function(newText, font, fontSize) {
-    this.styles.font = font;
-    this.styles.fontSize = fontSize;
+Text.prototype.resize = function(newText) {
     this.text = newText;
+};
+
+Text.prototype.restyle = function(key, value) {
+    this.styles[key] = value;
 };
 
 Text.prototype.isPointInElement = function(x, y) {
