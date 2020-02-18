@@ -1,5 +1,6 @@
 window.drawio = {
     shapes: [],
+    deletedShapes: [],
     selectedShape: 'drawing',
     canvas: document.getElementById('my-canvas'),
     ctx: document.getElementById('my-canvas').getContext('2d'),
@@ -45,6 +46,24 @@ $(function() {
         }
         if (drawio.newElement) drawio.newElement.render();
     };
+
+
+    function undoShape(){
+        if(drawio.shapes.length == 0){ return; }
+        let undoShape = drawio.shapes.pop();
+        drawio.deletedShapes.push(undoShape);
+        if(drawio.deletedShapes.length > 80){
+            drawio.deletedShapes.splice(0, 1);
+        }
+        drawCanvas();
+    }
+
+    function redoShape(){
+        if(drawio.deletedShapes.length == 0){ return; }
+        let redoShape = drawio.deletedShapes.pop();
+        drawio.shapes.push(redoShape);
+        drawCanvas();
+    }
 
     function selectShape(x,y) {
         drawio.ctx.clearRect(0, 0, drawio.canvas.width, drawio.canvas.height);
@@ -153,14 +172,38 @@ $(function() {
         localStorage.setItem(img, toStore);
     }
 
+    function disabled(){
+        if(!($(this).data('shape') == "undo" || $(this).data('shape') == "redo")){
+            disabledUndoRedo("undo");
+            disabledUndoRedo("redo");
+        }
+    }
+
+    function disabledUndoRedo(text){
+        if(!document.getElementById(text).classList.contains('disabled')){
+            $('#'+text).addClass('disabled');
+        }
+    }
+
     $('.icon').on('click', function() {
         $('.icon').removeClass('selected');
         $(this).addClass('selected');
+
+        disabled();
+
         if(this.classList.contains('load')){
             loadImage();
         }
         else if(this.classList.contains('save')){
             saveImage();
+        }
+        else if ($(this).data('shape') == "undo"){
+            $(this).removeClass('disabled');
+            undoShape();
+        }
+        else if ($(this).data('shape') == "redo"){
+            $(this).removeClass('disabled');
+            redoShape();
         }
         else{
             drawio.selectedElement = null;
@@ -181,6 +224,8 @@ $(function() {
             }
         }
     });
+
+    $("")
 
     $("#fill-color").on('change', function() {
         var color = $("#fill-color").spectrum('get').toHexString();
@@ -271,8 +316,6 @@ $(function() {
             let font = $('#font-settings')[0].options[$('#font-settings')[0].value].text;
             let fontSize = $('#font-size')[0].value;
             drawio.newElement.styles.fillStyle = drawio.styles.fillStyle;
-            console.log(drawio.newElement.styles.fillStyle);
-            console.log(drawio.styles.fillStyle);
             text = $(this).val();
             drawio.newElement.resize(text, font, fontSize);
             drawCanvas();
