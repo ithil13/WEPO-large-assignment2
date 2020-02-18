@@ -177,7 +177,7 @@ $(function() {
                 drawio.shapes.push(drawio.newElement);
                 drawio.newElement = null;
                 drawio.editingText = false;
-                $('#text-input').val('insert text');
+                $('#text-input').val('Insert text');
             }
         }
     });
@@ -248,11 +248,11 @@ $(function() {
                     drawio.newElement = null;
                     drawio.editingText = false;
                     $('.text-settings').addClass('hidden');
-                    $('#text-input').val('insert text');
+                    $('#text-input').val('Insert text');
                 } else {
                     $('.text-settings').removeClass('hidden');
                     drawio.newElement = new Text({x: mouseEvent.offsetX, y: mouseEvent.offsetY}, drawio.styles);
-                    drawio.newElement.render();
+                    drawio.newElement.render(); 
                     drawio.editingText = true;
                 }
                 break;
@@ -266,8 +266,15 @@ $(function() {
 
     $('#text-input').on('keyup', function() {
         if (drawio.editingText) {
+            /*  To change the font / fontSize you need to 
+                change font / fontSize and then change the text to see the changes */
+            let font = $('#font-settings')[0].options[$('#font-settings')[0].value].text;
+            let fontSize = $('#font-size')[0].value;
+            drawio.newElement.styles.fillStyle = drawio.styles.fillStyle;
+            console.log(drawio.newElement.styles.fillStyle);
+            console.log(drawio.styles.fillStyle);
             text = $(this).val();
-            drawio.newElement.resize(text);
+            drawio.newElement.resize(text, font, fontSize);
             drawCanvas();
             drawio.newElement.render();
         }

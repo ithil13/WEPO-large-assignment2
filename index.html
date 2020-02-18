@@ -47,10 +47,16 @@
                     <i class="fa fa-mouse-pointer" aria-hidden="true"></i>
                 </div>
                 <div class="text-settings hidden">
-                    <input id="text-input" type="text" value="insert text">
+                    <input id="text-input" type="text" value="insert text"><br />
+                    <input id="font-size" type="number" value="20">
+                    <select id="font-settings">
+                        <option value="0" selected>Comic Sans MS</option>
+                        <option value="1">Arial</option>
+                        <option value="2">Times New Roman Italic</option>
+                    </select>
                 </div>
                 <div class="color-picker">
-                    <p>Fill color:</p>
+                    <p>Fill/Text color:</p>
                     <input class="color-input" type='text' id="fill-color" />
                 </div>
                 <div class="color-picker">
@@ -65,7 +71,7 @@
                       <a value="8" class="line-width-picker-button"><hr style="height:5px"></a>
                       <a value="12" class="line-width-picker-button"><hr style="height:7px"></a>
                     </div>
-                  </div>
+                </div>
             </nav>
         </aside>
         <canvas id="my-canvas" width="800" height="600">

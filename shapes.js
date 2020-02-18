@@ -136,8 +136,11 @@ Drawing.prototype.move = function(xMove, yMove) {
 /**** Text ****/
 
 function Text(position, styles) {
+    // Default font is Comic Sans MS and default fontSize is 20px
+    styles.font = "Comic Sans MS";
+    styles.fontSize = "20";
     Shape.call(this, position, styles);
-    this.text = 'text will appear here';
+    this.text = 'Insert text';
 };
 
 Text.prototype = Object.create(Shape.prototype);
@@ -152,7 +155,9 @@ Text.prototype.render = function() {
     drawio.ctx.fillText(this.text, this.position.x, this.position.y);
 };
 
-Text.prototype.resize = function(newText) {
+Text.prototype.resize = function(newText, font, fontSize) {
+    this.styles.font = font;
+    this.styles.fontSize = fontSize;
     this.text = newText;
 };
 
