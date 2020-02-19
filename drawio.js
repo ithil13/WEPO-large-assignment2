@@ -352,31 +352,18 @@ $(function() {
         }
     });
 
+    $('#line-width').on('change', function() {
+        var px = $(this).val();
+        drawio.styles.lineWidth = px;
+    });
+
     $(".color-input").spectrum({
+        replacerClassName: 'color-picker-outer',
+        containerClassName: 'color-picker-inner',
         color: "#000000",
         showInput: true,
         showInitial: true,
         showPalette: true,
         palette: drawio.colorPalette
     });
-
-    $('.line-widht-picker').on('click', function() {
-        document.getElementById("myDropdown").classList.toggle("show");
-    })
-    $('.line-width-picker-button').on('click', function() {
-        var clicked = $(this).attr('value');
-        drawio.styles.lineWidth = clicked;
-    })
-    $(window).on('click', function() {
-        if (!event.target.matches('.dropbtn')) {
-            var dropdowns = document.getElementsByClassName("dropdown-content");
-            var i;
-            for (i = 0; i < dropdowns.length; i++) {
-              var openDropdown = dropdowns[i];
-              if (openDropdown.classList.contains('show')) {
-                openDropdown.classList.remove('show');
-              }
-            }
-          }
-    })
 })

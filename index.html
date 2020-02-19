@@ -3,89 +3,112 @@
     <head>
         <meta charset="utf-8">
         <title>Drawio</title>
-        <link rel="stylesheet" href="styles.css" />
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
         <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.css">
+        <link rel="stylesheet" href="styles.css" />
     </head>
     <body>
-        <aside>
-            <nav>
-                <div class="icon action disabled" id="undo" data-action="undo">
-                    <i class="fa fa-undo" aria-hidden="true"></i>
-                </div>
-                <div class="icon action disabled" id="redo" data-action="redo">
-                    <i class="fa fa-repeat" aria-hidden="true"></i>
-                </div>
-                <div class="icon action save" data-action="save">
-                    <i class="fa fa-save" aria-hidden="true"></i>
-                </div>
-                <div class="icon action load" data-action="load-image">
-                    <i class="fa fa-folder-open-o" aria-hidden="true"></i>
-                </div>
-                <div class="icon shape" data-shape="rectangle" data-fill="true">
-                    <i class="fa fa-square" aria-hidden="true"></i>
-                </div>
-                <div class="icon shape" data-shape="circle" data-fill="true">
-                    <i class="fa fa-circle" aria-hidden="true"></i>
-                </div>
-                <div class="icon shape" data-shape="line">
-                    <i aria-hidden="true">/</i>
-                </div>
-                <div class="icon shape selected" data-shape="drawing">
-                    <i class="fa fa-pencil" aria-hidden="true"></i>
-                </div>
-                <div class="icon shape" data-shape="rectangle" data-fill="false">
-                    <i class="fa fa-square-o" aria-hidden="true"></i>
-                </div>
-                <div class="icon shape" data-shape="circle" data-fill="false">
-                    <i class="fa fa-circle-thin" aria-hidden="true"></i>
-                </div>
-                <div class="icon shape" data-shape="text">
-                    <i class="fa fa-font" aria-hidden="true"></i>
-                </div>
-                <div class="icon shape" data-shape="select">
-                    <i class="fa fa-mouse-pointer" aria-hidden="true"></i>
-                </div>
-                <div class="text-settings hidden">
-                    <input class="font-options" id="text-input" type="text" value="insert text"><br />
-                    <input class="font-options" id="font-size" type="number" value="20">
-                    <select class="font-options" id="font-style">
-                        <option value="" selected>Normal</option>
-                        <option value="italic">Italic</option>
-                        <option value="bold">Bold</option>
-                        <option value="italic bold">Italic bold</option>
-                    </select>
-                    <select class="font-options" id="font-settings">
-                        <option value="Times New Roman">Times New Roman</option>
-                        <option value="Courier New">Courier New</option>
-                        <option value="Comic Sans MS" selected>Comic Sans MS</option>
-                        <option value="Lucidatypewriter, monospace">Lucidatypewriter</option>
-                        <option value="Arial">Arial</option>
-                        <option value="fantasy">Fantasy</option>
-                    </select>
-                </div>
-                <div class="color-picker">
-                    <p>Fill/Text color:</p>
-                    <input class="color-input" type='text' id="fill-color" />
-                </div>
-                <div class="color-picker">
-                    <p>Line color:</p>
-                    <input class="color-input" type='text' id="line-color" />
-                </div>
-                <div class="line-widht-picker">
-                    <button class="dropbtn" onchange="selectFromDropDown(this.value)">Line width</button>
-                    <div id="myDropdown" class="dropdown-content">
-                      <a value="2" class="line-width-picker-button"><hr style="height:1px"></a>
-                      <a value="5" class="line-width-picker-button"><hr style="height:3px"></a>
-                      <a value="8" class="line-width-picker-button"><hr style="height:5px"></a>
-                      <a value="12" class="line-width-picker-button"><hr style="height:7px"></a>
+        <div class="d-flex h-100">
+            <div class="align-self-stretch">
+                <aside>
+                    <div class="container px-3">
+                        <div class="row justify-content-around px-2 pb-1 border-bottom">
+                            <div class="icon action disabled" id="undo" data-action="undo">
+                                <i class="fa fa-undo" aria-hidden="true"></i>
+                            </div>
+                            <div class="icon action disabled" id="redo" data-action="redo">
+                                <i class="fa fa-repeat" aria-hidden="true"></i>
+                            </div>
+                            <div class="icon action save" data-action="save">
+                                <i class="fa fa-save" aria-hidden="true"></i>
+                            </div>
+                            <div class="icon action load" data-action="load-image">
+                                <i class="fa fa-folder-open-o" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                        <div class="row justify-content-around px-2">
+                            <div class="icon shape" data-shape="rectangle" data-fill="true">
+                                <i class="fa fa-square" aria-hidden="true"></i>
+                            </div>
+                            <div class="icon shape" data-shape="circle" data-fill="true">
+                                <i class="fa fa-circle" aria-hidden="true"></i>
+                            </div>
+                            <div class="icon shape" data-shape="line">
+                                <i aria-hidden="true">/</i>
+                            </div>
+                            <div class="icon shape selected" data-shape="drawing">
+                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                        <div class="row justify-content-around px-2">
+                            <div class="icon shape" data-shape="rectangle" data-fill="false">
+                                <i class="fa fa-square-o" aria-hidden="true"></i>
+                            </div>
+                            <div class="icon shape" data-shape="circle" data-fill="false">
+                                <i class="fa fa-circle-thin" aria-hidden="true"></i>
+                            </div>
+                            <div class="icon shape" data-shape="text">
+                                <i class="fa fa-font" aria-hidden="true"></i>
+                            </div>
+                            <div class="icon shape" data-shape="select">
+                                <i class="fa fa-mouse-pointer" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                        <div class="text-settings hidden py-2">
+                            <input class="font-options form-control" id="text-input" type="text" value="insert text">
+                            <div class="form-inline justify-content-between py-2">
+                                <input class="font-options form-control" id="font-size" type="number" value="20">
+                                <select class="font-options form-control" id="font-style">
+                                    <option value="" selected>Normal</option>
+                                    <option value="italic">Italic</option>
+                                    <option value="bold">Bold</option>
+                                    <option value="italic bold">Italic bold</option>
+                                </select>
+                            </div>
+                            <select class="font-options form-control" id="font-settings">
+                                <option value="Times New Roman">Times New Roman</option>
+                                <option value="Courier New">Courier New</option>
+                                <option value="Comic Sans MS" selected>Comic Sans MS</option>
+                                <option value="Lucidatypewriter, monospace">Lucidatypewriter</option>
+                                <option value="Arial">Arial</option>
+                                <option value="fantasy">Fantasy</option>
+                            </select>
+                        </div>
+                        <div class="color-picker d-flex justify-content-between pt-2">
+                            <label>Fill/Text color:</label>
+                            <input class="color-input" type='text' id="fill-color" />
+                        </div>
+                        <div class="color-picker d-flex justify-content-between pt-2">
+                            <label>Line color:</label>
+                            <input class="color-input" type='text' id="line-color" />
+                        </div>
+                        <div class="d-flex justify-content-between form-inline pt-2">
+                            <label>Line width:</label>
+                            <select id="line-width" class="form-control">
+                                <option value="1">1 px</option>
+                                <option value="2">2 px</option>
+                                <option value="3">3 px</option>
+                                <option value="4">4 px</option>
+                                <option value="5">5 px</option>
+                                <option value="6">6 px</option>
+                                <option value="7">7 px</option>
+                                <option value="8">8 px</option>
+                                <option value="9">9 px</option>
+                                <option value="10">10 px</option>
+                                <option value="11">11 px</option>
+                                <option value="12">12 px</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-            </nav>
-        </aside>
-        <canvas id="my-canvas" width="800" height="600">
-            HTML5 &lt;canvas&gt;&lt;/canvas&gt; is not supported
-        </canvas>
+                </aside>
+            </div>
+            <div class="flex-grow-1">
+                <canvas id="my-canvas" width="800" height="600">
+                    HTML5 &lt;canvas&gt;&lt;/canvas&gt; is not supported
+                </canvas>
+            </div>
+        </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js" charset="utf-8"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.js"></script>
         <script src="drawio.js" charset="utf-8"></script>
