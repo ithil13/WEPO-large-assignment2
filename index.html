@@ -56,7 +56,7 @@
                             </div>
                         </div>
                         <div class="text-settings hidden py-2">
-                            <input class="font-options form-control" id="text-input" type="text" value="insert text">
+                            <input class="font-options form-control" id="text-input" type="text" value="Write your text here">
                             <div class="form-inline justify-content-between py-2">
                                 <input class="font-options form-control" id="font-size" type="number" value="20">
                                 <select class="font-options form-control" id="font-style">
@@ -75,12 +75,15 @@
                                 <option value="fantasy">Fantasy</option>
                             </select>
                         </div>
+                        <div class="select-options hidden py-2">
+                            <p>Use ctrl-click to select more than one object</p>
+                        </div>
                         <div class="color-picker d-flex justify-content-between pt-2">
-                            <label>Fill/Text color:</label>
+                            <label class="m-0 align-self-center">Fill/Text color:</label>
                             <input class="color-input" type='text' id="fill-color" />
                         </div>
                         <div class="color-picker d-flex justify-content-between pt-2">
-                            <label>Line color:</label>
+                            <label class="m-0 align-self-center">Line color:</label class="m-0 align-items-center">
                             <input class="color-input" type='text' id="line-color" />
                         </div>
                         <div class="d-flex justify-content-between form-inline pt-2">
@@ -90,7 +93,7 @@
                                 <option value="2">2 px</option>
                                 <option value="3">3 px</option>
                                 <option value="4">4 px</option>
-                                <option value="5">5 px</option>
+                                <option value="5" selected>5 px</option>
                                 <option value="6">6 px</option>
                                 <option value="7">7 px</option>
                                 <option value="8">8 px</option>
