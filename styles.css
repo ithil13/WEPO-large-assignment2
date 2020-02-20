@@ -18,6 +18,12 @@ canvas {
     display: block;
 }
 
+.btn {
+    background-color: goldenrod;
+    color: darkslategrey;
+    font-weight: 600;
+}
+
 .icon {
     font-size: 2.5em;
     text-align: center;

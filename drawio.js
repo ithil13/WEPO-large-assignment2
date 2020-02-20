@@ -1,3 +1,16 @@
+/*
+Large assignment II group 5
+  - Arnþór Daði Jónasson
+  - Guðrún Helga Finnsdóttir
+  - Hafþór Hákonarson
+
+Extra features:
+  - Select/Move multiple elements
+  - Change styles of selected elements
+  - Delete selected elements
+  - Advanced undo/redo, works with moving, deleting and changing styles of elements
+*/
+
 window.drawio = {
     allShapes: [],
     visibleShapes: [],
@@ -32,7 +45,9 @@ window.drawio = {
     actions: {
         ADD: 'add',
         DELETE: 'delete',
-        MOVE: 'move'
+        MOVE: 'move',
+        STYLE: 'style',
+        TEXT: 'text'
     },
     colorPalette: [
         ["#000","#444","#666","#999","#ccc","#eee","#f3f3f3","#fff"],
@@ -47,6 +62,8 @@ window.drawio = {
 };
 
 $(function() {
+
+    /* Drawing and selecting */
     
     function drawCanvas() {
         drawio.ctx.clearRect(0, 0, drawio.canvas.width, drawio.canvas.height);
@@ -56,54 +73,16 @@ $(function() {
         if (drawio.newElement) drawio.newElement.render();
     };
 
-
-    function undoShape() {
-        if (drawio.allShapes.length == 0) return;
-        let undoObject = drawio.undoStack.pop();
-        drawio.redoStack.push(undoObject);
-
-        if (undoObject[0] == drawio.actions.ADD) {
-            drawio.visibleShapes = drawio.visibleShapes.filter(s => !undoObject[1].includes(s));
-        } else if (undoObject[0] == drawio.actions.DELETE) {
-            drawio.visibleShapes = drawio.visibleShapes.concat(undoObject[1]);
-            drawio.visibleShapes.sort();
-        } else if (undoObject[0] == drawio.actions.MOVE) {
-            for (var i = 0; i < undoObject[1].length; i++) {
-                drawio.allShapes[undoObject[1][i]].move(-undoObject[2], -undoObject[3]);
-            }
+    function drawSelectedIndicator() {
+        drawio.ctx.save();
+        drawio.ctx.strokeStyle = 'grey';
+        drawio.ctx.lineWidth = 3;
+        drawio.ctx.setLineDash([4, 4]);
+        for (i = 0; i < drawio.selectedElements.length; i++) {
+            drawio.ctx.stroke(drawio.allShapes[(drawio.selectedElements[i])].path);
         }
-
-        if (drawio.undoStack.length > 80) {
-            drawio.undoStack.splice(0, 1);
-        }
-        drawCanvas();
-        enableUndoRedo('redo');
-        if (drawio.undoStack.length == 0) {
-            disableUndoRedo('undo');
-        }
-    }
-
-    function redoShape() {
-        if (drawio.redoStack.length == 0) return;
-        let redoObject = drawio.redoStack.pop();
-        drawio.undoStack.push(redoObject);
-
-        if (redoObject[0] == drawio.actions.ADD) {
-            drawio.visibleShapes = drawio.visibleShapes.concat(redoObject[1]);
-        } else if (redoObject[0] == drawio.actions.DELETE) {
-            drawio.visibleShapes = drawio.visibleShapes.filter(s => !redoObject[1].includes(s));
-        } else if (redoObject[0] == drawio.actions.MOVE) {
-            for (var i = 0; i < redoObject[1].length; i++) {
-                drawio.allShapes[redoObject[1][i]].move(redoObject[2], redoObject[3]);
-            }
-        }
-
-        drawCanvas();
-        enableUndoRedo('undo');
-        if (drawio.redoStack.length == 0) {
-            disableUndoRedo('redo');
-        }
-    }
+        drawio.ctx.restore();
+    };
 
     function selectShape(x, y) {
         drawio.ctx.clearRect(0, 0, drawio.canvas.width, drawio.canvas.height);
@@ -130,17 +109,6 @@ $(function() {
         }
     };
 
-    function drawSelectedIndicator() {
-        drawio.ctx.save();
-        drawio.ctx.strokeStyle = 'grey';
-        drawio.ctx.lineWidth = 3;
-        drawio.ctx.setLineDash([4, 4]);
-        for (i = 0; i < drawio.selectedElements.length; i++) {
-            drawio.ctx.stroke(drawio.allShapes[(drawio.selectedElements[i])].path);
-        }
-        drawio.ctx.restore();
-    };
-
     function elementIsSelected(x, y) {
         for (var i = 0; i < drawio.selectedElements.length; i++) {
             if (drawio.allShapes[(drawio.selectedElements[i])].isPointInElement(x, y)) {
@@ -148,7 +116,248 @@ $(function() {
             }
         }
         return false;
-    }
+    };
+
+    /* Creating and deleting shapes */
+
+    $('.shape').on('click', function() {
+        $('.shape').removeClass('selected');
+        $(this).addClass('selected');
+        drawio.selectedElements = [];
+        drawCanvas();
+        drawio.selectedShape = $(this).data('shape');
+        var fillSetting = $(this).data('fill');
+        if (fillSetting != undefined) {
+            drawio.styles.fill = fillSetting;
+        }
+        if (drawio.selectedShape != drawio.availableShapes.TEXT) {
+            $('.text-settings').addClass('hidden');
+        }
+        if (drawio.editingText) {
+            drawio.allShapes.push(drawio.newElement);
+            let index = drawio.allShapes.indexOf(drawio.newElement);
+            drawio.visibleShapes.push(index);
+            drawio.undoStack.push([drawio.actions.ADD, [index]]);
+            drawio.redoStack = [];
+            disableUndoRedo('redo');
+            drawio.newElement = null;
+            drawio.editingText = false;
+            $('#text-input').val('Write your text here');
+        }
+        if (drawio.selectedShape == drawio.availableShapes.SELECT) {
+            $('.select-options').removeClass('hidden');
+        } else $('.select-options').addClass('hidden');
+    });
+
+    $('#my-canvas').on('mousedown', function(mouseEvent) {
+        switch (drawio.selectedShape) {
+            case drawio.availableShapes.RECTANGLE:
+                drawio.newElement = new Rectangle({x: mouseEvent.offsetX, y: mouseEvent.offsetY}, drawio.styles);
+                break;
+            case drawio.availableShapes.CIRCLE:
+                drawio.newElement = new Circle({x: mouseEvent.offsetX, y: mouseEvent.offsetY}, drawio.styles);
+                break;
+            case drawio.availableShapes.LINE:
+                drawio.newElement = new Line({x: mouseEvent.offsetX, y: mouseEvent.offsetY}, drawio.styles);
+                break;
+            case drawio.availableShapes.DRAWING:
+                drawio.newElement = new Drawing({x: mouseEvent.offsetX, y: mouseEvent.offsetY}, drawio.styles);
+                break;
+            case drawio.availableShapes.SELECT:
+                if (drawio.selectedElements.length != 0 && !mouseEvent.ctrlKey) {
+                    var x = mouseEvent.offsetX;
+                    var y = mouseEvent.offsetY;
+                    if (elementIsSelected(x, y)) {
+                        drawio.moveSelected = true;
+                        drawio.mouseStart = {x: x, y: y};
+                        drawio.mouseMove = {x: x, y: y};
+                        console.log('mousedown startpoint:', drawio.mouseStart)
+                    } else {
+                        drawio.selectedElements = [];
+                        $('.text-settings').addClass('hidden');
+                    } 
+                }
+                break;
+        }
+    });
+
+    $('#my-canvas').on('mousemove', function(mouseEvent) {
+        if (drawio.newElement && drawio.selectedShape != drawio.availableShapes.SELECT && !drawio.editingText) {
+            drawio.newElement.resize(mouseEvent.offsetX, mouseEvent.offsetY);
+            drawCanvas();
+        } else if (drawio.selectedElements.length > 0 && drawio.moveSelected) {
+            var xMove = mouseEvent.offsetX - drawio.mouseMove.x;
+            var yMove = mouseEvent.offsetY - drawio.mouseMove.y;
+            
+            for (var i = 0; i < drawio.selectedElements.length; i++) {
+                drawio.allShapes[drawio.selectedElements[i]].move(xMove, yMove);
+            }
+            drawio.mouseMove = {x: mouseEvent.offsetX, y: mouseEvent.offsetY};
+            drawCanvas();
+            drawSelectedIndicator();
+        }
+    });
+
+    $('#my-canvas').on('mouseup', function(mouseEvent) {
+        switch (drawio.selectedShape) {
+            case drawio.availableShapes.SELECT:
+                if (drawio.selectedElements.length == 0 || (drawio.selectedElements.length > 0 && mouseEvent.ctrlKey)) {
+                    selectShape(mouseEvent.offsetX, mouseEvent.offsetY);
+                } else if (drawio.selectedElements.length > 0 && drawio.moveSelected) {
+                    drawio.moveSelected = false;
+                    var xMove = mouseEvent.offsetX - drawio.mouseStart.x;
+                    var yMove = mouseEvent.offsetY - drawio.mouseStart.y;
+                    drawio.undoStack.push([drawio.actions.MOVE, drawio.selectedElements.slice(), xMove, yMove]);
+                    drawio.redoStack = [];
+                    console.log('mouseup undostack:', drawio.undoStack)
+                    disableUndoRedo('redo');
+                }
+                break;
+            case drawio.availableShapes.TEXT:
+                if (drawio.newElement) {
+                    drawio.allShapes.push(drawio.newElement);
+                    var index = drawio.allShapes.indexOf(drawio.newElement);
+                    drawio.visibleShapes.push(index);
+                    drawio.undoStack.push([drawio.actions.ADD, [index]]);
+                    drawio.redoStack = [];
+                    disableUndoRedo('redo');
+                    drawio.newElement = null;
+                    drawio.editingText = false;
+                    $('.text-settings').addClass('hidden');
+                    $('#text-input').val('Write your text here');
+                } else {
+                    $('.text-settings').removeClass('hidden');
+                    drawio.newElement = new Text({x: mouseEvent.offsetX, y: mouseEvent.offsetY}, drawio.styles);
+                    drawio.newElement.render(); 
+                    drawio.editingText = true;
+                }
+                break;
+            default:
+                if (drawio.newElement) {
+                    drawio.allShapes.push(drawio.newElement);
+                    var index = drawio.allShapes.indexOf(drawio.newElement);
+                    drawio.visibleShapes.push(index);
+                    drawio.undoStack.push([drawio.actions.ADD, [index]]);
+                    drawio.redoStack = [];
+                    disableUndoRedo('redo');
+                    drawio.newElement = null;
+                }
+        }
+        if (drawio.selectedShape != drawio.availableShapes.SELECT) {
+            enableUndoRedo('undo');
+        }
+    });
+
+    $('#delete-selected').on('click', function() {
+        if (drawio.selectedElements.length > 0) {
+            var undoObject = [drawio.actions.DELETE, []];
+            for (e = 0; e < drawio.selectedElements.length; e++) {
+                for (var i = 0; i < drawio.visibleShapes.length; i++) {
+                    if (drawio.selectedElements[e] == drawio.visibleShapes[i]) {
+                        drawio.visibleShapes.splice(i, 1);
+                        undoObject[1].push(drawio.selectedElements[e]);
+                    }
+                }
+            }
+            drawio.selectedElements = [];
+            drawio.undoStack.push(undoObject);
+            drawio.redoStack = [];
+            disableUndoRedo('redo');
+            $('.text-settings').addClass('hidden');
+            drawCanvas();
+        }
+    });
+
+    /* Undo and redo */
+
+    $('.action').on('click', function() {
+        if (this.classList.contains('load')) {
+            loadImage();
+        } else if (this.classList.contains('save')) {
+            saveImage();
+        } else if ($(this).data('action') == "undo") {
+            undoShape();
+        } else if ($(this).data('action') == "redo") {
+            redoShape();
+        }
+    });
+
+    function undoShape() {
+        if (drawio.allShapes.length == 0) return;
+        var undoObject = drawio.undoStack.pop();
+        if (undoObject[0] == drawio.actions.ADD) {
+            drawio.visibleShapes = drawio.visibleShapes.filter(s => !undoObject[1].includes(s));
+        } else if (undoObject[0] == drawio.actions.DELETE) {
+            drawio.visibleShapes = drawio.visibleShapes.concat(undoObject[1]);
+            drawio.visibleShapes.sort();
+        } else if (undoObject[0] == drawio.actions.MOVE) {
+            for (var i = 0; i < undoObject[1].length; i++) {
+                drawio.allShapes[undoObject[1][i]].move(-undoObject[2], -undoObject[3]);
+            }
+        } else if (undoObject[0] == drawio.actions.STYLE) {
+            for (var i = 0; i < undoObject[1].length; i++) {
+                drawio.allShapes[undoObject[1][i].element].restyle(undoObject[2], undoObject[1][i].oldValue);
+            }
+        } else if (undoObject[0] == drawio.actions.TEXT) {
+            for (var i = 0; i < undoObject[1].length; i++) {
+                drawio.allShapes[undoObject[1][i].element].resize(undoObject[1][i].oldText);
+            }
+        }
+
+        drawio.redoStack.push(undoObject);
+        if (drawio.undoStack.length > 100) {
+            drawio.undoStack.splice(0, 1);
+        }
+        drawCanvas();
+        enableUndoRedo('redo');
+        if (drawio.undoStack.length == 0) {
+            disableUndoRedo('undo');
+        }
+    };
+
+    function redoShape() {
+        if (drawio.redoStack.length == 0) return;
+        var redoObject = drawio.redoStack.pop();
+        drawio.undoStack.push(redoObject);
+
+        if (redoObject[0] == drawio.actions.ADD) {
+            drawio.visibleShapes = drawio.visibleShapes.concat(redoObject[1]);
+        } else if (redoObject[0] == drawio.actions.DELETE) {
+            drawio.visibleShapes = drawio.visibleShapes.filter(s => !redoObject[1].includes(s));
+        } else if (redoObject[0] == drawio.actions.MOVE) {
+            for (var i = 0; i < redoObject[1].length; i++) {
+                drawio.allShapes[redoObject[1][i]].move(redoObject[2], redoObject[3]);
+            }
+        } else if (redoObject[0] == drawio.actions.STYLE) {
+            for (var i = 0; i < redoObject[1].length; i++) {
+                drawio.allShapes[redoObject[1][i].element].restyle(redoObject[2], redoObject[1][i].newValue);
+            }
+        } else if (redoObject[0] == drawio.actions.TEXT) {
+            for (var i = 0; i < redoObject[1].length; i++) {
+                drawio.allShapes[redoObject[1][i].element].resize(redoObject[1][i].newText);
+            }
+        }
+
+        drawCanvas();
+        enableUndoRedo('undo');
+        if (drawio.redoStack.length == 0) {
+            disableUndoRedo('redo');
+        }
+    };
+
+    function disableUndoRedo(text) {
+        if (!document.getElementById(text).classList.contains('disabled')) {
+            $('#'+text).addClass('disabled');
+        }
+    };
+
+    function enableUndoRedo(text) {
+        if (document.getElementById(text).classList.contains('disabled')) {
+            $('#'+text).removeClass('disabled');
+        }
+    };
+
+    /* Save and load image */
 
     function loadImage() {
         var names = "";
@@ -204,7 +413,15 @@ $(function() {
         enableUndoRedo('undo');
         disableUndoRedo('redo');
         drawCanvas();
-    }
+    };
+
+    function saveImage() {
+        var x = drawio.allShapes;
+        var toStore = stringifyDrawioObject(x);
+        myStorage = window.localStorage;
+        var img = prompt("Image name: ");
+        localStorage.setItem(img, toStore);
+    };
 
     function stringifyDrawioObject(x){
         result = "";
@@ -232,88 +449,22 @@ $(function() {
             }
         }
         return result;
-    }
+    };
 
-    function saveImage() {
-        var x = drawio.allShapes;
-        var toStore = stringifyDrawioObject(x);
-        myStorage = window.localStorage;
-        var img = prompt("Image name: ");
-        localStorage.setItem(img, toStore);
-    }
-
-    function disableUndoRedo(text) {
-        if (!document.getElementById(text).classList.contains('disabled')) {
-            $('#'+text).addClass('disabled');
-        }
-    }
-
-    function enableUndoRedo(text) {
-        if (document.getElementById(text).classList.contains('disabled')) {
-            $('#'+text).removeClass('disabled');
-        }
-    }
-
-    $('.action').on('click', function() {
-        if (this.classList.contains('load')) {
-            loadImage();
-        } else if (this.classList.contains('save')) {
-            saveImage();
-        } else if ($(this).data('action') == "undo") {
-            undoShape();
-        } else if ($(this).data('action') == "redo") {
-            redoShape();
-        }
-    });
-
-    $('.shape').on('click', function() {
-        $('.shape').removeClass('selected');
-        $(this).addClass('selected');
-        drawio.selectedElements = [];
-        drawCanvas();
-        drawio.selectedShape = $(this).data('shape');
-        var fillSetting = $(this).data('fill');
-        if (fillSetting != undefined) {
-            drawio.styles.fill = fillSetting;
-        }
-        if (drawio.selectedShape != drawio.availableShapes.TEXT) {
-            $('.text-settings').addClass('hidden');
-        }
-        if (drawio.editingText) {
-            drawio.allShapes.push(drawio.newElement);
-            let index = drawio.allShapes.indexOf(drawio.newElement);
-            drawio.visibleShapes.push(index);
-            drawio.undoStack.push([drawio.actions.ADD, [index]]);
-            drawio.newElement = null;
-            drawio.editingText = false;
-            $('#text-input').val('Write your text here');
-        }
-        if (drawio.selectedShape == drawio.availableShapes.SELECT) {
-            $('.select-options').removeClass('hidden');
-        } else $('.select-options').addClass('hidden');
-    });
-
-    $('#delete-selected').on('click', function() {
-        if (drawio.selectedElements.length > 0) {
-            var undoObject = [drawio.actions.DELETE, []];
-            for (e = 0; e < drawio.selectedElements.length; e++) {
-                for (var i = 0; i < drawio.visibleShapes.length; i++) {
-                    if (drawio.selectedElements[e] == drawio.visibleShapes[i]) {
-                        drawio.visibleShapes.splice(i, 1);
-                        undoObject[1].push(drawio.selectedElements[e]);
-                    }
-                }
-            }
-            drawio.selectedElements = [];
-            drawio.undoStack.push(undoObject);
-            $('.text-settings').addClass('hidden');
-            drawCanvas();
-        }
-    })
+    /* Styling */
 
     function restyleSelected(prop, value) {
+        var undoObject = [drawio.actions.STYLE, [], prop];
         for (i = 0; i < drawio.selectedElements.length; i++) {
-            drawio.allShapes[drawio.selectedElements[i]].restyle(prop, value);
+            let element = drawio.allShapes[drawio.selectedElements[i]];
+            let oldValue = element.styles[prop];
+            element.restyle(prop, value);
+            undoObject[1].push({element: drawio.selectedElements[i], oldValue: oldValue, newValue: value});
+        }
+        if (undoObject[1].some(o => o.oldValue != o.newValue)) {
+            drawio.undoStack.push(undoObject);
+            drawio.redoStack = [];
+            disableUndoRedo('redo');
         }
         drawCanvas();
         drawSelectedIndicator();
@@ -331,97 +482,36 @@ $(function() {
         if (drawio.selectedElements.length > 0) restyleSelected('strokeStyle', color);
     });
 
-    $('#my-canvas').on('mousedown', function(mouseEvent) {
-        switch (drawio.selectedShape) {
-            case drawio.availableShapes.RECTANGLE:
-                drawio.newElement = new Rectangle({x: mouseEvent.offsetX, y: mouseEvent.offsetY}, drawio.styles);
-                break;
-            case drawio.availableShapes.CIRCLE:
-                drawio.newElement = new Circle({x: mouseEvent.offsetX, y: mouseEvent.offsetY}, drawio.styles);
-                break;
-            case drawio.availableShapes.LINE:
-                drawio.newElement = new Line({x: mouseEvent.offsetX, y: mouseEvent.offsetY}, drawio.styles);
-                break;
-            case drawio.availableShapes.DRAWING:
-                drawio.newElement = new Drawing({x: mouseEvent.offsetX, y: mouseEvent.offsetY}, drawio.styles);
-                break;
-            case drawio.availableShapes.SELECT:
-                if (drawio.selectedElements.length != 0 && !mouseEvent.ctrlKey) {
-                    var x = mouseEvent.offsetX;
-                    var y = mouseEvent.offsetY;
-                    if (elementIsSelected(x, y)) {
-                        console.log(1,drawio.visibleShapes)
-                        drawio.moveSelected = true;
-                        drawio.mouseStart = {x: x, y: y};
-                        drawio.mouseMove = {x: x, y: y};
-                    } else {
-                        drawio.selectedElements = [];
-                        $('.text-settings').addClass('hidden');
-                    } 
+    $('#text-input').on('focus', function() {
+        if (drawio.selectedElements.length > 0) {
+            for (i = 0; i < drawio.selectedElements.length; i++) {
+                let element = drawio.allShapes[drawio.selectedElements[i]];
+                if (Object.getPrototypeOf(element).constructor.name == "Text") {
+                    element.setOldText();
                 }
-                break;
-        }
-    });
-
-    $('#my-canvas').on('mousemove', function(mouseEvent) {
-        if (drawio.newElement && drawio.selectedShape != drawio.availableShapes.SELECT && !drawio.editingText) {
-            drawio.newElement.resize(mouseEvent.offsetX, mouseEvent.offsetY);
-            drawCanvas();
-        } else if (drawio.selectedElements.length > 0 && drawio.moveSelected) {
-            console.log(2,drawio.visibleShapes)
-            var xMove = mouseEvent.offsetX - drawio.mouseMove.x;
-            var yMove = mouseEvent.offsetY - drawio.mouseMove.y;
-            
-            for (var i = 0; i < drawio.selectedElements.length; i++) {
-                drawio.allShapes[drawio.selectedElements[i]].move(xMove, yMove);
             }
-            drawio.mouseMove = {x: mouseEvent.offsetX, y: mouseEvent.offsetY};
-            drawCanvas();
-            drawSelectedIndicator();
         }
     });
 
-    $('#my-canvas').on('mouseup', function(mouseEvent) {
-        switch (drawio.selectedShape) {
-            case drawio.availableShapes.SELECT:
-                if (drawio.selectedElements.length == 0 || (drawio.selectedElements.length > 0 && mouseEvent.ctrlKey)) {
-                    selectShape(mouseEvent.offsetX, mouseEvent.offsetY);
-                } else if (drawio.selectedElements.length > 0 && drawio.moveSelected) {
-                    console.log(3,drawio.visibleShapes)
-                    drawio.moveSelected = false;
-                    var xMove = mouseEvent.offsetX - drawio.mouseStart.x;
-                    var yMove = mouseEvent.offsetY - drawio.mouseStart.y;
-                    drawio.undoStack.push([drawio.actions.MOVE, drawio.selectedElements, xMove, yMove]);
+    $('#text-input').on('change', function() {
+        if (drawio.selectedElements.length > 0) {
+            var newText = $(this).val();
+            var undoObject = [drawio.actions.TEXT, []]
+            for (i = 0; i < drawio.selectedElements.length; i++) {
+                var index = drawio.selectedElements[i]
+                var element = drawio.allShapes[index];
+                if (Object.getPrototypeOf(element).constructor.name == "Text") {
+                    var oldText = element.oldText;
+                    if (oldText != newText) {
+                        undoObject[1].push({element: index, oldText: oldText, newText: newText});
+                    }
                 }
-                break;
-            case drawio.availableShapes.TEXT:
-                if (drawio.newElement) {
-                    drawio.allShapes.push(drawio.newElement);
-                    var index = drawio.allShapes.indexOf(drawio.newElement);
-                    drawio.visibleShapes.push(index);
-                    drawio.undoStack.push([drawio.actions.ADD, [index]]);
-                    drawio.newElement = null;
-                    drawio.editingText = false;
-                    $('.text-settings').addClass('hidden');
-                    $('#text-input').val('Write your text here');
-                } else {
-                    $('.text-settings').removeClass('hidden');
-                    drawio.newElement = new Text({x: mouseEvent.offsetX, y: mouseEvent.offsetY}, drawio.styles);
-                    drawio.newElement.render(); 
-                    drawio.editingText = true;
-                }
-                break;
-            default:
-                if (drawio.newElement) {
-                    drawio.allShapes.push(drawio.newElement);
-                    var index = drawio.allShapes.indexOf(drawio.newElement);
-                    drawio.visibleShapes.push(index);
-                    drawio.undoStack.push([drawio.actions.ADD, [index]]);
-                    drawio.newElement = null;
-                }
-        }
-        if (drawio.selectedShape != drawio.availableShapes.SELECT) {
-            enableUndoRedo('undo');
+            } 
+            if (undoObject[1].length > 0) {
+                drawio.undoStack.push(undoObject);
+                drawio.redoStack = [];
+                disableUndoRedo('redo');
+            }
         }
     });
 
@@ -439,7 +529,7 @@ $(function() {
             drawCanvas();
             drawSelectedIndicator();
         }
-    })
+    });
 
     $('#font-size').on('change', function() {
         var fontSize = $(this).val();

@@ -142,6 +142,7 @@ Drawing.prototype.move = function(xMove, yMove) {
 function Text(position, styles) {
     Shape.call(this, position, styles);
     this.text = 'Insert text';
+    this.oldText = '';
 };
 
 Text.prototype = Object.create(Shape.prototype);
@@ -164,4 +165,8 @@ Text.prototype.isPointInElement = function(x, y) {
     let rightEdge = this.position.x + drawio.ctx.measureText(this.text).width;
     let topEdge = this.position.y - this.styles.fontSize;
     return this.position.x <= x && x <= rightEdge && topEdge <= y && y <= this.position.y;
-}
+};
+
+Text.prototype.setOldText = function() {
+    this.oldText = this.text;
+};
