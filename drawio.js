@@ -90,6 +90,9 @@ $(function() {
             else drawio.selectedElements.push(element);
         }
         if (drawio.selectedElements.length > 0) {
+            if (drawio.selectedElements.some(e => Object.getPrototypeOf(e).constructor.name == 'Text')) {
+                $('.text-settings').removeClass('hidden');
+            } else $('.text-settings').addClass('hidden');
             drawSelectedIndicator();
         }
     };
@@ -122,46 +125,52 @@ $(function() {
         var loadImg = prompt("Which image would you like to load? \nCurrent images in storage are:\n  " + names);
         var x = window.localStorage.getItem(loadImg);
         drawImageFromString(x);
+        $('.shape').removeClass('selected');
+        $('#default-shape').addClass('selected');
+        $('.select-options').addClass('hidden');
     };
 
     function drawImageFromString(x){
         drawio.shapes = [];
+        drawio.selectedElements = [];
         var arr = x.split(";");
         for(var i = 0; i < arr.length - 1; i++){
             var items = arr[i].split(',');
             if(items[0] == 'Rectangle'){
-                var add = new Rectangle({x:items[1],y:items[2]},{fill: items[3] == 'true', fillStyle: items[4],
+                var add = new Rectangle({x: parseInt(items[1]), y: parseInt(items[2])},{fill: items[3] == 'true', fillStyle: items[4],
                 strokeStyle: items[5], lineWidth: items[6]});
                 add.width = items[7];
                 add.height = items[8];
             }
             else if(items[0] == 'Circle'){
-                var add = new Circle({x:items[1],y:items[2]},{fill: items[3] == 'true', fillStyle: items[4],
+                var add = new Circle({x: parseInt(items[1]), y: parseInt(items[2])},{fill: items[3] == 'true', fillStyle: items[4],
                     strokeStyle: items[5], lineWidth: items[6]});
                 add.radius = items[7];  
             }
             else if(items[0] == 'Line'){
-                var add = new Line({x:items[1],y:items[2]},{fill: items[3] == 'true', fillStyle: items[4],
+                var add = new Line({x: parseInt(items[1]), y: parseInt(items[2])},{fill: items[3] == 'true', fillStyle: items[4],
                     strokeStyle: items[5], lineWidth: items[6]})
                 add.endPoint.x = items[7];
                 add.endPoint.y = items[8];
             }
             else if(items[0] == 'Drawing'){
-                var add = new Drawing({x:items[1],y:items[2]},{fill: items[3] == 'true', fillStyle: items[4],
+                var add = new Drawing({x: parseInt(items[1]), y: parseInt(items[2])},{fill: items[3] == 'true', fillStyle: items[4],
                     strokeStyle: items[5], lineWidth: items[6]});
                 for(j = 7; j < items.length; j = j + 2){
                     add.points.push({x:items[j],y:items[j+1]})
                 }
             }
             else if(items[0] == 'Text'){
-                var add = new Text({x:items[1],y:items[2]},{fill: items[3] == 'true', fillStyle: items[4],
-                    strokeStyle: items[5], lineWidth: items[6], font: items[7], fontSize: items[8]})
-                add.text = items[9];
+                var add = new Text({x: parseInt(items[1]), y: parseInt(items[2])}, {fill: items[3] == 'true', fillStyle: items[4],
+                    strokeStyle: items[5], lineWidth: items[6], font: items[7], fontSize: parseInt(items[8]), fontStyle: items[9]})
+                add.resize(items[10]);
             }
             drawio.shapes.push(add);
-            drawCanvas();
         }
+        enableUndoRedo('undo');
+        drawCanvas();
     }
+
     function stringifyDrawioObject(x){
         result = "";
         for (i in x) {
@@ -184,7 +193,8 @@ $(function() {
                 }
             }
             else if (Object.getPrototypeOf(x[i]).constructor.name == "Text") {
-                result += "," + x[i].styles.font + "," + x[i].styles.fontSize + "," + x[i].text;
+                result += "," + x[i].styles.font + "," + x[i].styles.fontSize + "," 
+                + x[i].styles.fontStyle + "," + x[i].text;
             }
             result += ";";
         }
@@ -250,16 +260,40 @@ $(function() {
         } else $('.select-options').addClass('hidden');
     });
 
-    $("")
+    $('#delete-selected').on('click', function() {
+        if (drawio.selectedElements.length > 0) {
+            for (e = 0; e < drawio.selectedElements.length; e++) {
+                for (var i = 0; i < drawio.shapes.length; i++) {
+                    if (drawio.selectedElements[e] == drawio.shapes[i]) {
+                        drawio.shapes.splice(i, 1);
+                    }
+                }
+            }
+            drawio.selectedElements = [];
+            $('.text-settings').addClass('hidden');
+            drawCanvas();
+        }
+        // implement advanced undo/redo or set undo class to disabled
+    })
 
-    $("#fill-color").on('change', function() {
-        var color = $("#fill-color").spectrum('get').toHexString();
+    function restyleSelected(prop, value) {
+        for (i = 0; i < drawio.selectedElements.length; i++) {
+            drawio.selectedElements[i].restyle(prop, value);
+        }
+        drawCanvas();
+        drawSelectedIndicator();
+    }
+
+    $('#fill-color').on('change', function() {
+        var color = $('#fill-color').spectrum('get').toHexString();
         drawio.styles.fillStyle = color;
+        if (drawio.selectedElements.length > 0) restyleSelected('fillStyle', color);
     });
 
-    $("#line-color").on('change', function() {
-        var color = $("#line-color").spectrum('get').toHexString();
+    $('#line-color').on('change', function() {
+        var color = $('#line-color').spectrum('get').toHexString();
         drawio.styles.strokeStyle = color;
+        if (drawio.selectedElements.length > 0) restyleSelected('strokeStyle', color);
     });
 
     $('#my-canvas').on('mousedown', function(mouseEvent) {
@@ -283,7 +317,10 @@ $(function() {
                     if (elementIsSelected(x, y)) {
                         drawio.moveSelected = true;
                         drawio.mouseStart = {x: x, y: y};
-                    } else drawio.selectedElements = [];
+                    } else {
+                        drawio.selectedElements = [];
+                        $('.text-settings').addClass('hidden');
+                    } 
                 }
                 break;
         }
@@ -341,44 +378,55 @@ $(function() {
     });
 
     $('#text-input').on('keyup', function() {
+        var text = $(this).val();
         if (drawio.editingText) {
-            text = $(this).val();
             drawio.newElement.resize(text);
             drawCanvas();
             drawio.newElement.render();
         }
+        if (drawio.selectedElements.length > 0) {
+            for (i = 0; i < drawio.selectedElements.length; i++) {
+                drawio.selectedElements[i].resize(text);
+            }
+            drawCanvas();
+            drawSelectedIndicator();
+        }
     })
 
     $('#font-size').on('change', function() {
+        var fontSize = $(this).val();
         if (drawio.editingText) {
-            let fontSize = $(this).val();
             drawio.newElement.restyle('fontSize', fontSize);
             drawCanvas();
             drawio.newElement.render();
         }
+        if (drawio.selectedElements.length > 0) restyleSelected('fontSize', fontSize);
     });
 
     $('#font-settings').on('change', function() {
+        var font = $(this).val();
         if (drawio.editingText) {
-            let font = $(this).val();
             drawio.newElement.restyle('font', font);
             drawCanvas();
             drawio.newElement.render();
         }
+        if (drawio.selectedElements.length > 0) restyleSelected('font', font);
     });
 
     $('#font-style').on('change', function() {
+        var style = $(this).val();
         if (drawio.editingText) {
-            let style = $(this).val();
             drawio.newElement.restyle('fontStyle', style);
             drawCanvas();
             drawio.newElement.render();
         }
+        if (drawio.selectedElements.length > 0) restyleSelected('fontStyle', style);
     });
 
     $('#line-width').on('change', function() {
         var px = $(this).val();
         drawio.styles.lineWidth = px;
+        if (drawio.selectedElements.length > 0) restyleSelected('lineWidth', px);
     });
 
     $(".color-input").spectrum({

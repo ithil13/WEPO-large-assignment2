@@ -23,6 +23,10 @@ Shape.prototype.move = function(xMove, yMove) {
 
 Shape.prototype.resize = function() {};
 
+Shape.prototype.restyle = function(key, value) {
+    this.styles[key] = value;
+};
+
 Shape.prototype.isPointInElement = function(x, y) {
     return drawio.ctx.isPointInStroke(this.path, x, y) || drawio.ctx.isPointInPath(this.path, x, y);
 }
@@ -148,16 +152,12 @@ Text.prototype.render = function() {
     let topEdge = this.position.y - this.styles.fontSize;
     let width = drawio.ctx.measureText(this.text).width + 6
     this.path = new Path2D();
-    this.path.rect(this.position.x - 3, topEdge, width, this.styles.fontSize + 6);
+    this.path.rect(this.position.x - 3, topEdge, width, parseInt(this.styles.fontSize) + 6);
     drawio.ctx.fillText(this.text, this.position.x, this.position.y);
 };
 
 Text.prototype.resize = function(newText) {
     this.text = newText;
-};
-
-Text.prototype.restyle = function(key, value) {
-    this.styles[key] = value;
 };
 
 Text.prototype.isPointInElement = function(x, y) {

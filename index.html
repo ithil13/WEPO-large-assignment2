@@ -37,7 +37,7 @@
                             <div class="icon shape" data-shape="line">
                                 <i aria-hidden="true">/</i>
                             </div>
-                            <div class="icon shape selected" data-shape="drawing">
+                            <div id="default-shape" class="icon shape selected" data-shape="drawing">
                                 <i class="fa fa-pencil" aria-hidden="true"></i>
                             </div>
                         </div>
@@ -54,6 +54,10 @@
                             <div class="icon shape" data-shape="select">
                                 <i class="fa fa-mouse-pointer" aria-hidden="true"></i>
                             </div>
+                        </div>
+                        <div class="select-options hidden py-2">
+                            <p class="m-0 pb-2">Use ctrl-click to select more than one object</p>
+                            <button id="delete-selected" class="btn btn-light">Delete selected</button>
                         </div>
                         <div class="text-settings hidden py-2">
                             <input class="font-options form-control" id="text-input" type="text" value="Write your text here">
@@ -74,9 +78,6 @@
                                 <option value="Arial">Arial</option>
                                 <option value="fantasy">Fantasy</option>
                             </select>
-                        </div>
-                        <div class="select-options hidden py-2">
-                            <p>Use ctrl-click to select more than one object</p>
                         </div>
                         <div class="color-picker d-flex justify-content-between pt-2">
                             <label class="m-0 align-self-center">Fill/Text color:</label>
