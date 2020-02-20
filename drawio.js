@@ -84,7 +84,7 @@ $(function() {
     }
 
     function redoShape() {
-        if(drawio.redoStack.length == 0){ return; }
+        if (drawio.redoStack.length == 0) return;
         let redoObject = drawio.redoStack.pop();
         drawio.undoStack.push(redoObject);
 
@@ -152,7 +152,7 @@ $(function() {
 
     function loadImage() {
         var names = "";
-        for(const [key, value] of Object.entries(localStorage)){
+        for (const [key, value] of Object.entries(localStorage)) {
             names += key + ",\n  ";
         }
         var loadImg = prompt("Which image would you like to load? \nCurrent images in storage are:\n  " + names);
@@ -170,33 +170,29 @@ $(function() {
         drawio.undoStack = [[drawio.actions.ADD, []]];
         drawio.redoStack = [];
         var arr = x.split(";");
-        for(var i = 0; i < arr.length - 1; i++){
+        for (var i = 0; i < arr.length - 1; i++) {
             var items = arr[i].split(',');
-            if(items[0] == 'Rectangle'){
+            if (items[0] == 'Rectangle') {
                 var add = new Rectangle({x: parseInt(items[1]), y: parseInt(items[2])},{fill: items[3] == 'true', fillStyle: items[4],
                 strokeStyle: items[5], lineWidth: items[6]});
                 add.width = items[7];
                 add.height = items[8];
-            }
-            else if(items[0] == 'Circle'){
+            } else if (items[0] == 'Circle') {
                 var add = new Circle({x: parseInt(items[1]), y: parseInt(items[2])},{fill: items[3] == 'true', fillStyle: items[4],
                     strokeStyle: items[5], lineWidth: items[6]});
                 add.radius = items[7];  
-            }
-            else if(items[0] == 'Line'){
+            } else if(items[0] == 'Line') {
                 var add = new Line({x: parseInt(items[1]), y: parseInt(items[2])},{fill: items[3] == 'true', fillStyle: items[4],
                     strokeStyle: items[5], lineWidth: items[6]})
                 add.endPoint.x = items[7];
                 add.endPoint.y = items[8];
-            }
-            else if(items[0] == 'Drawing'){
+            } else if(items[0] == 'Drawing') {
                 var add = new Drawing({x: parseInt(items[1]), y: parseInt(items[2])},{fill: items[3] == 'true', fillStyle: items[4],
                     strokeStyle: items[5], lineWidth: items[6]});
-                for(j = 7; j < items.length; j = j + 2){
-                    add.points.push({x:items[j],y:items[j+1]})
+                for (j = 7; j < items.length; j = j + 2) {
+                    add.points.push({x:items[j],y:items[j+1]});
                 }
-            }
-            else if(items[0] == 'Text'){
+            } else if (items[0] == 'Text') {
                 var add = new Text({x: parseInt(items[1]), y: parseInt(items[2])}, {fill: items[3] == 'true', fillStyle: items[4],
                     strokeStyle: items[5], lineWidth: items[6], font: items[7], fontSize: parseInt(items[8]), fontStyle: items[9]})
                 add.resize(items[10]);
@@ -220,19 +216,15 @@ $(function() {
                     + "," + x[i].styles.lineWidth;
                 if (Object.getPrototypeOf(x[i]).constructor.name == "Rectangle") {
                     result +=  "," + x[i].width + "," + x[i].height;
-                }
-                else if (Object.getPrototypeOf(x[i]).constructor.name == "Circle") {
+                } else if (Object.getPrototypeOf(x[i]).constructor.name == "Circle") {
                     result += "," + x[i].radius;
-                }
-                else if (Object.getPrototypeOf(x[i]).constructor.name == "Line") {
+                } else if (Object.getPrototypeOf(x[i]).constructor.name == "Line") {
                     result += "," + x[i].endPoint.x + "," + x[i].endPoint.y;
-                }
-                else if (Object.getPrototypeOf(x[i]).constructor.name == "Drawing") {
+                } else if (Object.getPrototypeOf(x[i]).constructor.name == "Drawing") {
                     for (u in x[i].points) {
                         result += "," + x[i].points[u].x + "," + x[i].points[u].y;
                     }
-                }
-                else if (Object.getPrototypeOf(x[i]).constructor.name == "Text") {
+                } else if (Object.getPrototypeOf(x[i]).constructor.name == "Text") {
                     result += "," + x[i].styles.font + "," + x[i].styles.fontSize + "," 
                     + x[i].styles.fontStyle + "," + x[i].text;
                 }
@@ -250,29 +242,26 @@ $(function() {
         localStorage.setItem(img, toStore);
     }
 
-    function disableUndoRedo(text){
-        if(!document.getElementById(text).classList.contains('disabled')){
+    function disableUndoRedo(text) {
+        if (!document.getElementById(text).classList.contains('disabled')) {
             $('#'+text).addClass('disabled');
         }
     }
 
-    function enableUndoRedo(text){
-        if(document.getElementById(text).classList.contains('disabled')){
+    function enableUndoRedo(text) {
+        if (document.getElementById(text).classList.contains('disabled')) {
             $('#'+text).removeClass('disabled');
         }
     }
 
     $('.action').on('click', function() {
-        if(this.classList.contains('load')){
+        if (this.classList.contains('load')) {
             loadImage();
-        }
-        else if(this.classList.contains('save')){
+        } else if (this.classList.contains('save')) {
             saveImage();
-        }
-        else if ($(this).data('action') == "undo"){
+        } else if ($(this).data('action') == "undo") {
             undoShape();
-        }
-        else if ($(this).data('action') == "redo"){
+        } else if ($(this).data('action') == "redo") {
             redoShape();
         }
     });
